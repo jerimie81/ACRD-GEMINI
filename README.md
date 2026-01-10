@@ -31,14 +31,15 @@ ACRD-GEMINI (Android Comprehensive Repair & Diagnostics - Gemini) leverages the 
 ## Project Structure
 ```text
 ACRD-GEMINI/
+├── launch.sh               # All-in-one launcher script
 ├── main.py                 # Main entry point, launches TUI
 ├── setup.py                # Initialization and dependency setup script
 ├── config.py               # Configuration management (API keys, paths)
 ├── db/                     # Database management
 │   ├── acrd.db             # SQLite database
-│   ├── db_manager.py       # Database operations logic
 │   └── Alembic/            # Database migration scripts
 ├── modules/                # Core logic modules
+│   ├── db_manager.py       # Database operations logic
 │   ├── ai_integration.py   # Gemini AI wrapper
 │   ├── device_quarry.py    # Device detection logic
 │   ├── hal/                # Hardware Abstraction Layer (ADB, Fastboot, Heimdall)
@@ -66,20 +67,17 @@ ACRD-GEMINI/
     git clone <repository-url>
     cd ACRD-GEMINI
     ```
-2.  **Install Python Dependencies:**
+2.  **Run the Launcher Script:**
+    The `launch.sh` script handles everything: checking dependencies, installing Python packages, downloading tools, and launching the app.
     ```bash
-    pip install -r requirements.txt
-    ```
-3.  **Run the Setup Script:**
-    This script checks for system dependencies, initializes the database, and downloads necessary tools (ADB, Fastboot).
-    ```bash
-    python setup.py
+    chmod +x launch.sh
+    ./launch.sh
     ```
 
 ## Usage
-To start the tool, run the main script:
+To start the tool, simply run the launcher script:
 ```bash
-python main.py
+./launch.sh
 ```
 Follow the on-screen prompts in the TUI to interact with your connected Android device.
 
@@ -100,6 +98,7 @@ python -m unittest discover tests
 ```
 
 ## Scripts
+- **`launch.sh`**: The recommended way to start the application. Checks env and runs setup.
 - **`setup.py`**: Handles initial environment setup, dependency checks, and tool downloads.
 - **`main.py`**: The primary entry point for the application.
 - **`db/Alembic/integrate_into_setup.py`**: Script to integrate Alembic migration execution into the main `setup.py` flow.

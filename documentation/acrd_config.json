@@ -1,0 +1,93 @@
+{
+  "acrd_settings": {
+    "project_name": "ACRD Toolset Updater",
+    "version": "1.0",
+    "github_api_url": "https://api.github.com/repos/{}/releases/latest"
+  },
+  "tools": [
+    {
+      "name": "Heimdall",
+      "repo": "Benjamin-Dobell/Heimdall",
+      "category": "Flashing",
+      "description": "Cross-platform tool for flashing firmware onto Samsung devices."
+    },
+    {
+      "name": "Payload Dumper Go",
+      "repo": "ssut/payload-dumper-go",
+      "category": "Extraction",
+      "description": "Extracts Android OTA payload.bin files."
+    },
+    {
+      "name": "Lpunpack",
+      "repo": "unix3dgforce/lpunpack",
+      "category": "Extraction",
+      "description": "Unpacks super.img dynamic partitions."
+    },
+    {
+      "name": "Abootimg",
+      "repo": "ggrandou/abootimg",
+      "category": "Image Manipulation",
+      "description": "Tool to read/write/update Android Boot Images."
+    },
+    {
+      "name": "Simg2img",
+      "repo": "anestisb/android-simg2img",
+      "category": "Conversion",
+      "description": "Converts sparse images to raw images."
+    },
+    {
+      "name": "Apktool",
+      "repo": "iBotPeaches/Apktool",
+      "category": "Decompilation",
+      "description": "Reverse engineering tool for 3rd party Android apps."
+    },
+    {
+      "name": "JADX",
+      "repo": "skylot/jadx",
+      "category": "Decompilation",
+      "description": "Dex to Java decompiler."
+    },
+    {
+      "name": "Dex2Jar",
+      "repo": "pxb1988/dex2jar",
+      "category": "Conversion",
+      "description": "Converts .dex files to .jar files."
+    },
+    {
+      "name": "Enjarify",
+      "repo": "google/enjarify",
+      "category": "Conversion",
+      "description": "Translates Dalvik bytecode to Java bytecode."
+    },
+    {
+      "name": "Bytecode Viewer",
+      "repo": "Konloch/bytecode-viewer",
+      "category": "Suite",
+      "description": "Java Reverse Engineering Suite."
+    },
+    {
+      "name": "QARK",
+      "repo": "linkedin/qark",
+      "category": "Static Analysis",
+      "description": "Finds security vulnerabilities in Android apps."
+    },
+    {
+      "name": "Magisk",
+      "repo": "topjohnwu/Magisk",
+      "category": "Rooting",
+      "description": "Systemless rooting solution."
+    },
+    {
+      "name": "Uber APK Signer",
+      "repo": "patrickfav/uber-apk-signer",
+      "category": "Utility",
+      "description": "Zipaligns and signs APKs."
+    },
+    {
+      "name": "TWRP Device Tree Gen",
+      "repo": "twrpdtgen/twrpdtgen",
+      "category": "Recovery",
+      "description": "Generates TWRP device trees from boot images."
+    }
+  ]
+}

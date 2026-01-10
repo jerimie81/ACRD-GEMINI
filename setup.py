@@ -23,8 +23,8 @@ TOOL_METADATA = {
     "heimdall": {
         "category": "Flashing",
         "doc_url": "https://heimdal.readthedocs.io/en/latest/",
-        "download_url": "https://github.com/Benjamin-Dobell/Heimdall/releases/download/v1.4.2/heimdall-v1.4.2-linux-x86_64.zip", # Example link
-        "type": "zip"
+        "download_url": None,
+        "type": "manual"
     },
     "payload-dumper-go": {
         "category": "Extraction",
@@ -113,7 +113,7 @@ TOOL_METADATA = {
     "dex2jar": {
         "category": "Conversion",
         "doc_url": "https://github.com/pxb1988/dex2jar",
-        "download_url": "https://github.com/pxb1988/dex2jar/releases/download/2.1/dex2jar-2.1.zip",
+        "download_url": "https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip",
         "type": "zip"
     },
     "enjarify": {
@@ -173,7 +173,7 @@ TOOL_METADATA = {
     "aapt2": {
         "category": "Build Tool",
         "doc_url": "https://developer.android.com/tools/aapt2",
-        "download_url": "https://dl.google.com/android/repository/build-tools_r34.0.0-linux.zip", # Example
+        "download_url": "https://dl.google.com/android/repository/build-tools_r34-linux.zip",
         "type": "zip"
     },
     "uber-apk-signer": {
