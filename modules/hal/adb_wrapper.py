@@ -36,6 +36,8 @@ class AdbWrapper(ToolWrapper):
 
     def shell(self, command):
         """Executes a shell command on the device."""
+        if isinstance(command, str):
+            command = command.split()
         return self._run_adb_command(['shell'] + command)
     
     def pull(self, remote_path, local_path):
@@ -45,6 +47,10 @@ class AdbWrapper(ToolWrapper):
     def push(self, local_path, remote_path):
         """Pushes a file to the device."""
         return self._run_adb_command(['push', local_path, remote_path])
+
+    def install(self, apk_path):
+        """Installs an APK."""
+        return self._run_adb_command(['install', apk_path])
 
     def logcat(self, options=None, stream=False):
         """Gets a device logcat. If stream is True, returns a subprocess.Popen object."""

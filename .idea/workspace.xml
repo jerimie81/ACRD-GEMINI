@@ -5,28 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0bb8ae5d-7b14-4249-8238-acca88ebc741" name="Changes" comment="test: expand HAL test coverage with additional device and hardware workflows">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/main.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/main.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/acrd.db" beforeDir="false" afterPath="$PROJECT_DIR$/db/acrd.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/db_manager.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/DB_strategy.md" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/DB_strategy.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/Project_Structure.md" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/Project_Structure.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/documentation/directory-tree.md" beforeDir="false" afterPath="$PROJECT_DIR$/documentation/directory-tree.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/ai_integration.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/ai_integration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/compile.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/compile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/db_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/decompile.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/decompile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/device_quarry.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/device_quarry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/repair.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/repair.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/root.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/root.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/validator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_ai.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_ai.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_modules.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/tui.py" beforeDir="false" afterPath="$PROJECT_DIR$/ui/tui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/hal/adb_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/hal/adb_wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/hal/fastboot_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/hal/fastboot_wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/hal/heimdall_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/hal/heimdall_wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_hal.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_hal.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,7 +97,7 @@
       <workItem from="1768029849798" duration="967000" />
       <workItem from="1768030835510" duration="631000" />
       <workItem from="1768047048740" duration="3147000" />
-      <workItem from="1768052605612" duration="11857000" />
+      <workItem from="1768052605612" duration="12342000" />
     </task>
     <task id="LOCAL-00001" summary="&#10;&#10;Core Infrastructure:&#10;◦&#10;Created setup.py to handle dependency checks, tool downloads (from ACRD-toolset.md), and DB initialization.&#10;◦&#10;Moved and refined db_manager.py to modules/ with full schema implementation (device profiles, tools, logs).&#10;◦&#10;Added requirements.txt, .gitignore, and LICENSE.&#10;•&#10;Modules &amp; Logic:&#10;◦&#10;Implemented device_quarry.py for ADB/Fastboot device detection.&#10;◦&#10;Implemented ai_integration.py for Gemini API interaction with error handling.&#10;◦&#10;Implemented download.py with checksum verification.&#10;◦&#10;Implemented root.py for fetching warnings and methods.&#10;◦&#10;Added HAL wrappers: adb_wrapper.py, fastboot_wrapper.py.&#10;◦&#10;Added functional stubs for compile, decompile, diagnostic, debug, and repair modules.&#10;•&#10;UI:&#10;◦&#10;Built a dynamic TUI in ui/tui.py using rich, connecting all modules via a main menu.&#10;•&#10;Testing &amp; Maintenance:&#10;◦&#10;Added unit tests (test_db, test_hal, test_ai) and integration tests (test_core_flow, test_safety).&#10;◦&#10;Added scripts/prune_logs.py for database maintenance.&#10;◦&#10;Added verify_urls.py to validate tool download links.&#10;•&#10;Documentation:&#10;◦&#10;Added documentation/EXTENSIBILITY.md.&#10;◦&#10;Updated TODO.md to reflect project completion status.">
       <option name="closed" value="true" />
@@ -165,7 +147,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768063778085</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="test: expand HAL test coverage with additional device and hardware workflows">
+      <option name="closed" value="true" />
+      <created>1768068474596</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1768068474596</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -175,6 +165,7 @@
     <MESSAGE value="&#10;&#10;Core Infrastructure:&#10;◦&#10;Created setup.py to handle dependency checks, tool downloads (from ACRD-toolset.md), and DB initialization.&#10;◦&#10;Moved and refined db_manager.py to modules/ with full schema implementation (device profiles, tools, logs).&#10;◦&#10;Added requirements.txt, .gitignore, and LICENSE.&#10;•&#10;Modules &amp; Logic:&#10;◦&#10;Implemented device_quarry.py for ADB/Fastboot device detection.&#10;◦&#10;Implemented ai_integration.py for Gemini API interaction with error handling.&#10;◦&#10;Implemented download.py with checksum verification.&#10;◦&#10;Implemented root.py for fetching warnings and methods.&#10;◦&#10;Added HAL wrappers: adb_wrapper.py, fastboot_wrapper.py.&#10;◦&#10;Added functional stubs for compile, decompile, diagnostic, debug, and repair modules.&#10;•&#10;UI:&#10;◦&#10;Built a dynamic TUI in ui/tui.py using rich, connecting all modules via a main menu.&#10;•&#10;Testing &amp; Maintenance:&#10;◦&#10;Added unit tests (test_db, test_hal, test_ai) and integration tests (test_core_flow, test_safety).&#10;◦&#10;Added scripts/prune_logs.py for database maintenance.&#10;◦&#10;Added verify_urls.py to validate tool download links.&#10;•&#10;Documentation:&#10;◦&#10;Added documentation/EXTENSIBILITY.md.&#10;◦&#10;Updated TODO.md to reflect project completion status." />
     <MESSAGE value="feat: project completion, CLI enhancements, and CI/CD integration&#10;&#10;&#10;&#10;This comprehensive update marks the completion of the ACRD-GEMINI toolset, transitioning the project from a set of core stubs to a fully functional, production-ready system.&#10;&#10;&#10;&#10;### Key Accomplishments:&#10;&#10;&#10;&#10;#### 1. Robustness &amp; Validation&#10;&#10;- **Environment Checks:** Implemented `modules/validator.py` to ensure all necessary tools and configurations are present before execution.&#10;&#10;- **Enhanced CLI:** Added flexible command-line arguments to `main.py` (`--quarry-only`, `--check-config`, `--no-tui`) to support various use cases and automation.&#10;&#10;- **Error Handling:** Standardized error management across all modules, with operations and failures now consistently logged to the database.&#10;&#10;&#10;&#10;#### 2. Advanced Hardware Interaction (HAL)&#10;&#10;- **Multi-Device Support:** Refactored `adb_wrapper` and `fastboot_wrapper` to handle multiple connected devices simultaneously.&#10;&#10;- **Improved Selection:** Enhanced `device_quarry` with an interactive selection menu for multi-device environments.&#10;&#10;&#10;&#10;#### 3. Core Module Deep Implementation&#10;&#10;- **Compilation &amp; Decompilation:** Fully implemented logic in `compile.py` and `decompile.py`, integrating external tools like `abootimg`, `apktool`, and `jadx`.&#10;&#10;- **Repair &amp; Flashing:** Added operational flashing logic in `repair.py` using Heimdall and Fastboot, complemented by critical safety prompts.&#10;&#10;&#10;&#10;#### 4. UI &amp; User Experience&#10;&#10;- **Visual Feedback:** Integrated `rich` progress bars and spinners to provide real-time feedback for long-running operations.&#10;&#10;- **Safety First:** Implemented explicit confirmation prompts for all potentially destructive actions (Rooting, Flashing, Repairing).&#10;&#10;&#10;&#10;#### 5. CI/CD and Project Health&#10;&#10;- **Automated Testing:** Established a GitHub Actions CI workflow to ensure code quality and prevent regressions.&#10;&#10;- **Community Standards:** Added `CONTRIBUTING.md` and detailed issue templates for bug reports.&#10;&#10;- **Packaging:** Created `acrd.spec` for standalone executable generation.&#10;&#10;- **Infrastructure:** Finalized the database schema, updated documentation, and added `launch.sh` for easier deployment." />
     <MESSAGE value="refactor: improve root method handling and add bootloader unlock check&#10;&#10;- Enhanced logic for bootloader unlock verification via fastboot mode detection.&#10;- Refined `get_root_warnings` and `get_root_methods` to handle `get()` safely.&#10;- Improved Magisk instructions with placeholders for critical path operations.&#10;- Added fallback handling for pulling and patching boot images. &#10;- Ensured directory creation for device-specific operations during root processes." />
+    <MESSAGE value="refactor: migrate db_manager to SQLAlchemy with improved schema handling&#10;&#10;- Replaced SQLite logic with SQLAlchemy ORM to simplify database interactions and improve maintainability.&#10;- Updated `init_db` to use SQLAlchemy models and added schema versioning.&#10;- Added comprehensive exception handling for database operations.&#10;- Improved method data initialization with richer metadata for compatibility and requirements." />
     <MESSAGE value="test: expand HAL test coverage with additional device and hardware workflows" />
     <option name="LAST_COMMIT_MESSAGE" value="test: expand HAL test coverage with additional device and hardware workflows" />
   </component>

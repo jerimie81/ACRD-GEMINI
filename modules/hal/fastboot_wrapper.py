@@ -39,3 +39,7 @@ class FastbootWrapper(ToolWrapper):
     def boot(self, image):
         """Boots a specific image."""
         return self._run_fastboot_command(['boot', image])
+
+    def reboot(self):
+        """Reboots the device."""
+        return self._run_fastboot_command(['reboot'])
