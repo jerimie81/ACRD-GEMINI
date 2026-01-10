@@ -2,7 +2,7 @@
 
 import argparse
 import sys
-from modules import db_manager, device_quarry, dir_tree_generator, ai_integration, validator
+from modules import db_manager, device_quarry, dir_tree_generator, ai_integration
 from ui import tui
 import config
 from rich.console import Console
@@ -17,21 +17,17 @@ def main():
     parser.add_argument("--no-tui", action="store_true", help="Run without TUI (useful for automation).")
     args = parser.parse_args()
 
-    # 1. Validate Environment and Config
-    if not validator.validate_environment():
-        sys.exit(1)
-
+    # 1. Validate Config
     if args.check_config:
-        if validator.validate_config():
+        if config.validate_config():
             console.print("[green]Configuration is valid.[/green]")
             sys.exit(0)
         else:
             console.print("[red]Configuration validation failed.[/red]")
             sys.exit(1)
 
-    # Always validate config unless specifically skipped (but we want it for most operations)
-    if not validator.validate_config() and not args.quarry_only:
-        console.print("[yellow]Warning: Some tools are missing. Some features may not work.[/yellow]")
+    if not config.validate_config():
+        console.print("[yellow]Warning: Configuration issues detected. Some features may not work.[/yellow]")
 
     # 2. Initialize Core Components
     ai_integration.initialize_gemini()
@@ -58,7 +54,6 @@ def main():
     if args.no_tui:
         console.print("[blue]Running in non-TUI mode.[/blue]")
         console.print(f"Device Info: {device_info}")
-        # In a real scenario, we might want to trigger specific actions here based on other CLI args
     else:
         tui.launch_tui(device_info)
 

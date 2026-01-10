@@ -19,8 +19,10 @@ class TestHal(unittest.TestCase):
         var = fastboot_wrapper.getvar("unlocked")
         self.assertEqual(var, "unlocked: yes")
 
+    @patch('os.path.exists')
     @patch('subprocess.run')
-    def test_heimdall_detect(self, mock_run):
+    def test_heimdall_detect(self, mock_run, mock_exists):
+        mock_exists.return_value = True
         mock_run.return_value.stdout = "Device detected"
         detected = heimdall_wrapper.detect()
         self.assertTrue(detected)

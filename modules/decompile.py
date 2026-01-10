@@ -3,6 +3,7 @@
 from rich.console import Console
 import subprocess
 import config
+import os
 
 def decompile_apk(apk_path, output_path, tool='apktool'):
     """
@@ -31,7 +32,6 @@ def decompile_boot_img(boot_img_path, output_path):
     console = Console()
     console.print(f"Decompiling boot image {boot_img_path} to {output_path}...")
     try:
-        import os
         os.makedirs(output_path, exist_ok=True)
         # abootimg -x boot.img
         subprocess.run(['abootimg', '-x', os.path.abspath(boot_img_path)], cwd=output_path, check=True)

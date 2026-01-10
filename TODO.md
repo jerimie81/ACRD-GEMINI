@@ -10,14 +10,20 @@ As the Senior Android Systems Architect & AI Integration Lead, this TODO list ou
     - Created `launch.sh` for easy startup.
     - Added `requirements.txt`, `.gitignore`, and `LICENSE`.
     - Created `verify_urls.py` and `scripts/prune_logs.py`.
+    - Implemented configuration validation (`config.py`) and CLI arguments (`main.py`).
 
 - [x] **Modules & Logic:**
     - `device_quarry.py`: Implemented ADB/Fastboot detection.
-    - `ai_integration.py`: Implemented Gemini wrapper.
+    - `ai_integration.py`: Implemented Gemini wrapper with rate limiting and retries.
     - `download.py`: Implemented file download with checksums.
     - `root.py`: Implemented warning fetching and method querying.
     - `dir_tree_generator.py`: Implemented directory tree generation.
     - `hal/`: Implemented wrappers for ADB, Fastboot.
+    - `compile.py`: Implemented kernel compilation logic and placeholders for ROM/AVB/Lpmake.
+    - `decompile.py`: Implemented APK, Boot Image, Payload, and Super Image decompilation logic.
+    - `repair.py`: Implemented flashing logic with safety checks (battery, confirmation).
+    - `diagnostic.py`: Added comprehensive checks (Root, Battery, Storage, SELinux, Crashes, Dmesg).
+    - `debug.py`: Added logcat filtering options.
 
 - [x] **UI:**
     - `tui.py`: Implemented main menu and submenus using `rich`.
@@ -29,54 +35,26 @@ As the Senior Android Systems Architect & AI Integration Lead, this TODO list ou
 - [x] **Documentation:**
     - Updated `README.md`.
     - Created `documentation/EXTENSIBILITY.md`.
+    - Added `CONTRIBUTING.md`.
 
-- [x] **Testing:**
+- [x] **Testing & CI:**
     - Added unit and integration tests.
+    - Created `run_tests.py`.
+    - Set up GitHub Actions (`.github/workflows/tests.yml`).
+    - Added Issue Templates.
 
 ## Remaining Tasks
 
-### High-Priority (Refinement & Robustness)
-
-- [x] **Error Handling & Logging:**
-    - Implement comprehensive error handling across all modules.
-    - Use `db_manager.log_operation` to log actions and errors to the database.
-- [x] **Configuration Validation:**
-    - Create a function to validate `config.py` (API keys, paths) on startup.
-- [x] **CLI Arguments:**
-    - Add `argparse` to `main.py` to support non-TUI modes or specific operations (e.g., `--quarry-only`).
-
-### Module Enhancements (Deep Implementation)
-
-- [x] **ai_integration.py:**
-    - Add rate limiting and retry logic for Gemini API calls. (Basic validation and truncation implemented)
-- [x] **compile.py:**
-    - Implement actual kernel compilation logic (subprocess calls to make/bazel).
-    - Add ROM compilation support. (Stubbed with logic)
-- [x] **decompile.py:**
-    - Implement boot image decompilation (using `abootimg`).
-    - Integrate `apktool` and `jadx` calls.
-- [x] **repair.py:**
-    - Implement full flashing logic for stock ROMs. (Heimdall/Fastboot logic added)
-    - Add safety checks (e.g., user confirmation, battery level check) before flashing.
-- [x] **diagnostic.py:**
-    - Add more diagnostic checks (battery health, storage integrity, app crash analysis).
-- [x] **debug.py:**
-    - Add logcat filtering options (by tag, level).
-
 ### UI Improvements
 
-- [x] **Safety Prompts:**
-    - Add confirmation prompts for destructive actions (Root, Flash, Repair) in `tui.py`.
-- [x] **Visual Feedback:**
+- [ ] **Safety Prompts:**
+    - Add confirmation prompts for destructive actions (Root, Flash, Repair) in `tui.py`. (Partially handled in `repair.py`, need to ensure consistent usage).
+- [ ] **Visual Feedback:**
     - Implement `rich` progress bars and spinners for long-running operations (downloads, compilations).
 
 ### Advanced / Future Features
 
-- [x] **Multi-Device Support:**
+- [ ] **Multi-Device Support:**
     - Allow selecting from a list of connected devices.
-- [x] **CI/CD:**
-    - Set up GitHub Actions for automated testing and linting.
-- [x] **Packaging:**
+- [ ] **Packaging:**
     - Create standalone executables using PyInstaller.
-- [x] **Community:**
-    - Add `CONTRIBUTING.md` and issue templates.
