@@ -22,39 +22,65 @@ class TestModules(unittest.TestCase):
         decompile.decompile_apk('/path/to/app.apk', '/path/to/output', tool='jadx')
         mock_run.assert_called_with([config.JADX_PATH, '-d', '/path/to/output', '/path/to/app.apk'], check=True)
 
-    @patch('modules.hal.adb_wrapper.shell')
-    def test_diagnostic_root_check(self, mock_shell):
-        mock_shell.return_value = "rooted"
-        # We can't easily capture print output without redirecting stdout, 
-        # but we can verify the mock was called.
-        diagnostic.run_diagnostics({'model': 'Test', 'boot_mode': 'adb'})
-        mock_shell.assert_any_call(["su", "-c", "echo 'rooted'"])
+    @patch('config.ADB_PATH', 'dummy_adb')
+    @patch('modules.hal.AdbWrapper')
+    def test_diagnostic_root_check(self, MockAdbWrapper):
+        mock_adb_instance = MockAdbWrapper.return_value
+        mock_adb_instance.shell.return_value = "rooted"
+        
+        device_info = {'model': 'Test', 'boot_mode': 'adb', 'serial': 'test-serial'}
+        diagnostic.run_diagnostics(device_info)
+        
+        MockAdbWrapper.assert_called_with('dummy_adb', serial='test-serial')
+        mock_adb_instance.shell.assert_any_call(["su", "-c", "echo 'rooted'"])
 
-    @patch('modules.hal.adb_wrapper.logcat')
-    def test_debug_logcat(self, mock_logcat):
-        # Mock the Popen object
+    @patch('config.ADB_PATH', 'dummy_adb')
+    @patch('modules.hal.AdbWrapper')
+    @patch('rich.console.Console')
+    def test_debug_logcat_filtered(self, MockConsole, MockAdbWrapper):
+        # Mock user input to select filter by string
+        mock_console_instance = MockConsole.return_value
+        mock_console_instance.input.side_effect = ['4', 'search_term']
+
+        mock_adb_instance = MockAdbWrapper.return_value
         mock_process = MagicMock()
-        mock_process.stdout = ["log line 1\n", "log line 2\n"]
-        mock_logcat.return_value = mock_process
-        
-        # We need to mock input to select an option, or refactor debug.py to be testable without input
-        # Since debug.py uses console.input, it's hard to test directly without mocking input.
-        # For now, we'll skip deep testing of the interactive part or mock builtins.input
-        pass
+        mock_process.stdout = ["line with search_term\n", "another line\n"]
+        mock_adb_instance.logcat.return_value = mock_process
 
-    @patch('modules.hal.fastboot_wrapper.flash')
-    @patch('rich.prompt.Confirm.ask')
-    def test_repair_flash_stock_rom(self, mock_confirm, mock_flash):
-        mock_confirm.return_value = True
-        device_info = {'boot_mode': 'fastboot'}
+        device_info = {'model': 'Test', 'boot_mode': 'adb', 'serial': 'test-serial'}
+        debug.start_logcat(device_info)
+
+        MockAdbWrapper.assert_called_with('dummy_adb', serial='test-serial')
+        mock_adb_instance.logcat.assert_called_with(stream=True)
+        # Check that the line with the search term was printed
+        mock_console_instance.print.assert_any_call("line with search_term\n", end="")
+        mock_process.terminate.assert_called_once()
+
+    @patch('config.FASTBOOT_PATH', 'dummy_fastboot')
+    @patch('modules.hal.FastbootWrapper')
+    @patch('rich.prompt.Confirm.ask', return_value=True)
+    @patch('os.path.exists')
+    def test_repair_flash_stock_rom(self, mock_os_exists, mock_confirm, MockFastbootWrapper):
+        mock_fastboot_instance = MockFastbootWrapper.return_value
         
-        # Mock os.path.exists to simulate manual flashing path
-        with patch('os.path.exists') as mock_exists:
-            mock_exists.return_value = False # No flash-all script
-            # But images exist? We need to handle the loop.
-            # Let's just test that it tries to flash if images exist.
-            # This is getting complex to mock fully.
-            pass
+        device_info = {'model': 'Test', 'boot_mode': 'fastboot', 'serial': 'test-serial'}
+        rom_path = '/path/to/rom'
+
+        # Simulate that flash-all script doesn't exist, but image files do
+        def side_effect(path):
+            if path.endswith('.sh') or path.endswith('.bat'):
+                return False
+            return True
+        mock__os_exists.side_effect = side_effect
+
+        repair.flash_stock_rom(device_info, rom_path)
+
+        MockFastbootWrapper.assert_called_with('dummy_fastboot', serial='test-serial')
+        
+        # Check that flash was called for the images
+        mock_fastboot_instance.flash.assert_any_call('boot', '/path/to/rom/boot.img')
+        mock_fastboot_instance.flash.assert_any_call('system', '/path/to/rom/system.img')
+        # ... and so on for other images
 
 if __name__ == '__main__':
     unittest.main()

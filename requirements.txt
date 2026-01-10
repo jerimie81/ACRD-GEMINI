@@ -1,5 +1,5 @@
 rich
-google-generativeai
+google-genai
 requests
 sqlalchemy
 pytest

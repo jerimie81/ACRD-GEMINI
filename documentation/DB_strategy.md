@@ -49,7 +49,7 @@ These are Python packages for the core framework, AI integration, UI, and HAL. V
   - sqlite3 (Built-in for DB management)
   - os, sys, json, re, subprocess (Built-in Python modules)
 - **AI and Generative**:
-  - google-generativeai (Gemini SDK for AI integration)
+  - google-genai (Gemini SDK for AI integration)
 - **UI and CLI**:
   - rich (For modern TUI experiences)
 - **Hardware and Device Interaction**:

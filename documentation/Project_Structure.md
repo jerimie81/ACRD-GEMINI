@@ -1,6 +1,6 @@
 # ACRD-GEMINI Project Structure
 
-As the Senior Android Systems Architect & AI Integration Lead, I am architecting the ACRD-GEMINI project based on the core directives in proj-outline.md. This structure adheres to the "Quarry First" philosophy: always interrogate hardware to establish truth, then dynamically generate environments. The design is modular, scalable, and plugin-based, with SQLite for persistent state management (e.g., device profiles, root methods). Python 3.x serves as the core framework, integrating Google Gemini via the google-generativeai SDK for AI-driven decisions (e.g., dir tree creation, tool tailoring).
+As the Senior Android Systems Architect & AI Integration Lead, I am architecting the ACRD-GEMINI project based on the core directives in proj-outline.md. This structure adheres to the "Quarry First" philosophy: always interrogate hardware to establish truth, then dynamically generate environments. The design is modular, scalable, and plugin-based, with SQLite for persistent state management (e.g., device profiles, root methods). Python 3.x serves as the core framework, integrating Google Gemini via the google-genai SDK for AI-driven decisions (e.g., dir tree creation, tool tailoring).
 
 The project emphasizes safety-critical execution: all high-risk operations (e.g., rooting, flashing) include checksum verification, compatibility checks, and AI-explained warnings pulled from device-specific documentation (sourced via AGENT_TOOL_DOCS.md as the primary knowledge base). UI is text-based (TUI) using the Rich library for modern CLI experiences.
 
@@ -21,7 +21,7 @@ Below is the proposed directory structure for ACRD-GEMINI. It expands on the bas
 ```
 ACRD-GEMINI/
 ├── README.md                  # Project overview, setup instructions, and usage guide
-├── requirements.txt           # Python dependencies (e.g., google-generativeai, sqlite3, rich, adbutils)
+├── requirements.txt           # Python dependencies (e.g., google-genai, sqlite3, rich, adbutils)
 ├── setup.py                   # Script to initialize DB, download pre-compiled tools, and configure environment
 ├── main.py                    # Core entry point: detects USB, quarries device, generates dir tree via Gemini, launches TUI
 ├── config.py                  # Global configs: API keys (Gemini), DB path, tool paths from AGENT_TOOL_DOCS.md

@@ -4,15 +4,17 @@ import config
 from rich.console import Console
 from rich.prompt import Confirm
 from modules.hal import AdbWrapper, FastbootWrapper, HeimdallWrapper
+from modules.exceptions import AIError, ToolError
 from modules import ai_integration
 import os
+
+console = Console()
 
 def repair_device(device_info):
     """
     Main repair entry point. 
     Handles flash/soft-brick/hard-brick/SoC/IMEI subsections.
     """
-    console = Console()
     console.print(f"[bold red]Repairing Device: {device_info.get('brand', '')} {device_info.get('model', 'Unknown')}[/bold red]")
     
     options = ["Soft-brick Recovery", "Flash Factory Image", "IMEI Repair (Diagnostic)", "Hard-brick (EDL/Download)"]
@@ -29,35 +31,40 @@ def repair_device(device_info):
     # ... other options
 
 def recover_soft_brick(device_info):
-    console = Console()
     console.print("Attempting soft-brick recovery...")
-    # AI-driven recovery suggestion
-    with open('templates/error_recovery_prompt.txt', 'r') as f:
-        template = f.read()
-    
-    prompt = template.format(log="Device stuck at boot logo", issue="Soft-brick", AGENT_TOOL_DOCS_md="AGENT_TOOL_DOCS.md")
-    ai_integration.initialize_gemini()
-    suggestion = ai_integration.gemini_generate_content(prompt)
-    console.print(f"AI Suggestion: {suggestion}")
+    try:
+        # AI-driven recovery suggestion
+        with open('templates/error_recovery_prompt.txt', 'r') as f:
+            template = f.read()
+        
+        prompt = template.format(log="Device stuck at boot logo", issue="Soft-brick", AGENT_TOOL_DOCS_md="AGENT_TOOL_DOCS.md")
+        suggestion = ai_integration.gemini_generate_content(prompt)
+        console.print(f"AI Suggestion: {suggestion}")
+    except (FileNotFoundError, AIError) as e:
+        console.print(f"[red]Could not get AI suggestion: {e}[/red]")
+
 
 def check_battery(device_info):
     """Checks battery level if possible."""
-    console = Console()
     if device_info.get('boot_mode') == 'adb' and device_info.get('serial'):
-        adb = AdbWrapper(config.ADB_PATH, serial=device_info['serial'])
-        # Dumpsys is more reliable for battery info
-        battery_info = adb.shell(["dumpsys", "battery"])
-        if battery_info:
-            level_line = [line for line in battery_info.splitlines() if "level:" in line]
-            if level_line:
-                level = int(level_line[0].split(':')[1].strip())
-                console.print(f"Current battery level: {level}%")
-                if level < 20:
-                    console.print("[red]Battery level is critically low.[/red]")
-                    return Confirm.ask("Continue anyway?", default=False)
-                return True
-        console.print("[yellow]Could not determine battery level.[/yellow]")
-        return Confirm.ask("Continue anyway?", default=True)
+        try:
+            adb = AdbWrapper(config.ADB_PATH, serial=device_info['serial'])
+            # Dumpsys is more reliable for battery info
+            battery_info = adb.shell(["dumpsys", "battery"])
+            if battery_info:
+                level_line = [line for line in battery_info.splitlines() if "level:" in line]
+                if level_line:
+                    level = int(level_line[0].split(':')[1].strip())
+                    console.print(f"Current battery level: {level}%")
+                    if level < 20:
+                        console.print("[red]Battery level is critically low.[/red]")
+                        return Confirm.ask("Continue anyway?", default=False)
+                    return True
+            console.print("[yellow]Could not determine battery level.[/yellow]")
+            return Confirm.ask("Continue anyway?", default=True)
+        except (ToolError, FileNotFoundError) as e:
+            console.print(f"[red]Could not check battery: {e}[/red]")
+            return Confirm.ask("Continue anyway?", default=False)
     elif device_info.get('boot_mode') in ['fastboot', 'fastbootd']:
         # Fastboot doesn't reliably report battery level, so we have to warn the user
         console.print("[yellow]Cannot check battery in fastboot mode. Please ensure it's adequately charged.[/yellow]")
@@ -68,8 +75,6 @@ def flash_stock_rom(device_info, rom_path):
     """
     Flashes a stock ROM to the device with safety checks.
     """
-    console = Console()
-    
     # Safety Checks
     if not Confirm.ask("[bold red]WARNING: This operation will wipe data and potentially brick the device. Continue?[/bold red]"):
         console.print("Operation cancelled.")
@@ -118,5 +123,5 @@ def flash_stock_rom(device_info, rom_path):
             
         console.print("[green]Stock ROM flashing complete.[/green]")
         
-    except Exception as e:
+    except (ToolError, FileNotFoundError, Exception) as e:
         console.print(f"[red]Flashing failed: {e}[/red]")

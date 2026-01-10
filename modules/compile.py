@@ -2,7 +2,6 @@
 
 from rich.console import Console
 import subprocess
-import config
 
 def compile_kernel(source_path, toolchain_path):
     """
@@ -31,7 +30,7 @@ def compile_rom(source_path, target_device):
         except Exception as e:
             console.print(f"[red]ROM compilation failed: {e}[/red]")
 
-def sign_avb(image_path, key_path):
+def sign_avb(image_path, key_path, avbtool_path):
     """
     Signs an image with AVB (Android Verified Boot).
     """
@@ -39,12 +38,12 @@ def sign_avb(image_path, key_path):
     console.print(f"Signing {image_path} with AVB key {key_path}...")
     try:
         # avbtool add_hash_footer --image image.img --partition_name boot --partition_size ... --key key.pem --algorithm SHA256_RSA2048
-        subprocess.run(['python3', config.AVBTOOL_PATH, 'add_hash_footer', '--image', image_path, '--key', key_path], check=True)
+        subprocess.run(['python3', avbtool_path, 'add_hash_footer', '--image', image_path, '--key', key_path], check=True)
         console.print("AVB signing complete.")
     except Exception as e:
         console.print(f"[red]AVB signing failed: {e}[/red]")
 
-def lpmake(output_path, partition_info):
+def lpmake(output_path, partition_info, lpmake_path):
     """
     Creates a super image using lpmake.
     """
@@ -52,7 +51,7 @@ def lpmake(output_path, partition_info):
     console.print(f"Creating super image at {output_path}...")
     try:
         # lpmake --device-size ... --metadata-size ... --metadata-slots ... --partition ...
-        # command = [config.LPMAKE_PATH, '--output', output_path] + partition_info
+        # command = [lpmake_path, '--output', output_path] + partition_info
         # subprocess.run(command, check=True)
         console.print("Super image creation complete (placeholder).")
     except Exception as e:

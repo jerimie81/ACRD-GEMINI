@@ -27,7 +27,7 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         # If you don't have a requirements.txt, you might need to manually install libraries:
-        # pip install google-generativeai
+        # pip install google-genai
 
     # 4. Run your main script or tests
     - name: Run ACRD Analysis

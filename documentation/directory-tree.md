@@ -1,6 +1,9 @@
+# ACRD-GEMINI Directory Tree
+
+```
 ACRD-GEMINI/
 ├── README.md                  # Project overview, setup instructions, and usage guide
-├── requirements.txt           # Python dependencies (e.g., google-generativeai, sqlite3, rich, adbutils)
+├── requirements.txt           # Python dependencies (e.g., google-genai, sqlite3, rich, adbutils)
 ├── setup.py                   # Script to initialize DB, download pre-compiled tools, and configure environment
 ├── main.py                    # Core entry point: detects USB, quarries device, generates dir tree via Gemini, launches TUI
 ├── config.py                  # Global configs: API keys (Gemini), DB path, tool paths from AGENT_TOOL_DOCS.md
@@ -50,3 +53,4 @@ ACRD-GEMINI/
     ├── test_hal.py
     ├── test_ai.py
     └── test_modules.py
+```

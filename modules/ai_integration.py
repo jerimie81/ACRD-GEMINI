@@ -1,36 +1,46 @@
 # modules/ai_integration.py
 
-import google.generativeai as genai
-import config
+from google import genai
 import json
 import time
 import random
+from .exceptions import AIError
 
-def initialize_gemini():
+# Global client instance
+_client = None
+
+def initialize_gemini(api_key):
     """Initialize Gemini client."""
-    if not config.GEMINI_API_KEY or config.GEMINI_API_KEY == 'your_api_key_here':
+    global _client
+    if not api_key or api_key == 'your_api_key_here':
         print("Warning: GEMINI_API_KEY is not set. AI features will be limited.")
         return False
-    genai.configure(api_key=config.GEMINI_API_KEY)
+    try:
+        _client = genai.Client(api_key=api_key)
+    except Exception as e:
+        raise AIError(f"Failed to configure Gemini: {e}")
     return True
 
 def gemini_generate_content(prompt, max_length=4096, retries=3):
     """
     Generate content using Gemini with prompt optimization, hallucination handling, and retries.
     """
-    if not config.GEMINI_API_KEY or config.GEMINI_API_KEY == 'your_api_key_here':
-        return "AI response unavailable (API key not set)."
+    global _client
+    if not _client:
+        raise AIError("Gemini client not initialized. Please call initialize_gemini first.")
 
     # Truncate the prompt to avoid exceeding token limits (basic optimization)
     optimized_prompt = prompt[:max_length]
 
     for attempt in range(retries):
         try:
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(optimized_prompt)
+            response = _client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=optimized_prompt
+            )
             
             if not response or not response.text:
-                return "No response from AI."
+                raise AIError("No response from AI.")
 
             text = response.text.strip()
             
@@ -57,12 +67,21 @@ def gemini_generate_content(prompt, max_length=4096, retries=3):
                 print(f"AI Generation error: {e}. Retrying in {wait_time:.2f}s...")
                 time.sleep(wait_time)
             else:
-                return f"AI Generation error after {retries} attempts: {str(e)}"
+                raise AIError(f"AI Generation error after {retries} attempts: {str(e)}")
 
 def get_embedding(text):
     """
     Get vector embeddings for a given text.
     """
-    return genai.embed_content(model="models/embedding-001",
-                                content=text,
-                                task_type="retrieval_document")["embedding"]
+    global _client
+    if not _client:
+        raise AIError("Gemini client not initialized. Please call initialize_gemini first.")
+        
+    try:
+        response = _client.models.embed_content(
+            model="text-embedding-004",
+            contents=text
+        )
+        return response.embeddings[0].values
+    except Exception as e:
+        raise AIError(f"Failed to get embedding: {e}")

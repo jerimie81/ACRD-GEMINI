@@ -30,7 +30,7 @@ def main():
         console.print("[yellow]Warning: Configuration issues detected. Some features may not work.[/yellow]")
 
     # 2. Initialize Core Components
-    ai_integration.initialize_gemini()
+    ai_integration.initialize_gemini(config.GEMINI_API_KEY)
     db_manager.init_db()
 
     # 3. Detect and quarry the device

@@ -1,213 +1,165 @@
 # modules/db_manager.py
 
-import sqlite3
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
 from contextlib import contextmanager
-import config  # Assuming config.DB_PATH is defined
+import config
+from .exceptions import DatabaseError
+from db.models import Base, DeviceProfile, Method, ToolConfig, Log, UrlPlaceholder, AiTailoredOption, DbMetadata
+import datetime
+
+engine = create_engine(f'sqlite:///{config.DB_PATH}')
+Session = sessionmaker(bind=engine)
 
 @contextmanager
-def get_db_connection():
-    """Context manager for DB connections with transaction support."""
-    conn = sqlite3.connect(config.DB_PATH)
+def get_session():
+    """Provide a transactional scope around a series of operations."""
+    session = Session()
     try:
-        yield conn
+        yield session
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise DatabaseError(f"Database operation failed: {e}")
     finally:
-        conn.close()
+        session.close()
 
 def init_db():
-    """Initialize the database with expanded schema."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        # device_profiles
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS device_profiles (
-                model TEXT PRIMARY KEY,
-                brand TEXT NOT NULL,
-                os_version TEXT,
-                firmware TEXT,
-                security_patch TEXT,
-                boot_mode TEXT,
-                last_quarried TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_model ON device_profiles(model)')
-        
-        # urls_placeholders
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS urls_placeholders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                model TEXT NOT NULL,
-                component TEXT NOT NULL,
-                url TEXT,
-                type TEXT,
-                checksum TEXT,
-                verified BOOLEAN DEFAULT FALSE,
-                FOREIGN KEY (model) REFERENCES device_profiles(model) ON DELETE CASCADE
-            )
-        ''')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_urls_model ON urls_placeholders(model)')
-        
-        # methods
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS methods (
-                name TEXT PRIMARY KEY,
-                description TEXT,
-                pros TEXT,
-                cons TEXT,
-                compatibility TEXT,
-                requirements TEXT
-            )
-        ''')
-        
-        # tool_configs
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tool_configs (
-                tool_name TEXT PRIMARY KEY,
-                path TEXT,
-                version TEXT,
-                source_url TEXT
-            )
-        ''')
-        
-        # logs
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                model TEXT,
-                operation TEXT NOT NULL,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                log_data TEXT,
-                status TEXT,
-                FOREIGN KEY (model) REFERENCES device_profiles(model) ON DELETE SET NULL
-            )
-        ''')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_logs_model ON logs(model)')
-        
-        # ai_tailored_options
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS ai_tailored_options (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                model TEXT NOT NULL,
-                option TEXT NOT NULL,
-                tailored_data TEXT,
-                generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (model) REFERENCES device_profiles(model) ON DELETE CASCADE
-            )
-        ''')
-        
-        # db_metadata
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS db_metadata (
-                key TEXT PRIMARY KEY,
-                value TEXT
-            )
-        ''')
-        
-        # Set initial schema version
-        cursor.execute("INSERT OR REPLACE INTO db_metadata (key, value) VALUES ('schema_version', '1')")
-        
-        # Sample data insertion (extend as needed)
-        cursor.execute('''
-            INSERT OR REPLACE INTO methods (name, description, pros, cons, compatibility, requirements)
-            VALUES ('Magisk', 'Systemless root via boot patching', 'Stable, modules', 'Bootloader unlock needed', 'Android 14+', '{"bootloader_unlock": true, "tools": ["adb", "fastboot"]}')
-        ''')
-        
-        # Example tool_configs from AGENT_TOOL_DOCS.md
-        cursor.execute('''
-            INSERT OR REPLACE INTO tool_configs (tool_name, path, version, source_url)
-            VALUES ('adb', 'tools/adb', 'latest', 'https://developer.android.com/tools/releases/platform-tools')
-        ''')
-        # Add more tools similarly
-        
-        conn.commit()
+    """Initialize the database with the defined schema."""
+    try:
+        Base.metadata.create_all(engine)
+        with get_session() as session:
+            # Set initial schema version
+            schema_version = session.query(DbMetadata).filter_by(key='schema_version').first()
+            if not schema_version:
+                session.add(DbMetadata(key='schema_version', value='1'))
+
+            # Sample data insertion
+            methods = [
+                {
+                    'name': 'Magisk',
+                    'description': 'Systemless root via boot image patching; installs as an app/module system.',
+                    'pros': 'Stable, large module ecosystem, handles dm-verity automatically.',
+                    'cons': 'Requires bootloader unlock; hiding needs extra modules.',
+                    'compatibility': 'Android 14-16; 90%+ success on most devices.',
+                    'requirements': '{"bootloader_unlock": true, "tools": ["adb", "fastboot"]}'
+                },
+                {
+                    'name': 'KernelSU',
+                    'description': 'Kernel-based root integrating directly into the device kernel.',
+                    'pros': 'Better at bypassing detection (Play Integrity); no fingerprint spoofing needed.',
+                    'cons': 'Requires GKI kernels (5.10+); manual superuser setup.',
+                    'compatibility': 'Android 14+ on GKI devices; 80% success.',
+                    'requirements': '{"bootloader_unlock": true, "tools": ["adb", "fastboot"]}'
+                },
+                {
+                    'name': 'APatch',
+                    'description': 'Hybrid kernel patching tool focusing on systemless modifications.',
+                    'pros': 'Flexible for complex setups; good for evading detections.',
+                    'cons': 'Less mainstream; stability varies; requires precise kernel matching.',
+                    'compatibility': 'Android 14-16; 75% success.',
+                    'requirements': '{"bootloader_unlock": true, "tools": ["adb", "fastboot"]}'
+                },
+                {
+                    'name': 'Kitsune Mask',
+                    'description': 'Enhanced Magisk fork with improved hiding features.',
+                    'pros': 'Better root hiding than vanilla Magisk; maintains Magisk ecosystem.',
+                    'cons': 'Smaller community than original Magisk.',
+                    'compatibility': 'Android 14+; 85% success.',
+                    'requirements': '{"bootloader_unlock": true, "tools": ["adb", "fastboot"]}'
+                },
+                {
+                    'name': 'Samsung-Specific',
+                    'description': 'Magisk patching adapted for Samsung via Odin tool.',
+                    'pros': 'Tailored for Samsung ecosystem; avoids fastboot limitations.',
+                    'cons': 'Trips Knox (permanent); requires exact ROM match.',
+                    'compatibility': 'Android 14+ on Samsung; 70% success.',
+                    'requirements': '{"bootloader_unlock": true, "tools": ["odin"]}'
+                }
+            ]
+
+            for m_data in methods:
+                method = session.query(Method).filter_by(name=m_data['name']).first()
+                if method:
+                    # Update existing method
+                    for key, value in m_data.items():
+                        setattr(method, key, value)
+                else:
+                    # Add new method
+                    session.add(Method(**m_data))
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Database initialization failed: {e}")
+
 
 def add_tool_config(tool_name, path, version, source_url):
-    """Adds a tool configuration to the database."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT OR REPLACE INTO tool_configs (tool_name, path, version, source_url)
-            VALUES (?, ?, ?, ?)
-        ''', (tool_name, path, version, source_url))
-        conn.commit()
+    """Adds or updates a tool configuration in the database."""
+    with get_session() as session:
+        tool = session.query(ToolConfig).filter_by(tool_name=tool_name).first()
+        if tool:
+            tool.path = path
+            tool.version = version
+            tool.source_url = source_url
+        else:
+            session.add(ToolConfig(tool_name=tool_name, path=path, version=version, source_url=source_url))
 
-def insert_device_profile(info):
-    """Insert or update device profile."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT OR REPLACE INTO device_profiles 
-            (model, brand, os_version, firmware, security_patch, boot_mode, last_quarried)
-            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ''', (info.get('model'), info.get('brand'), info.get('os_version'),
-              info.get('firmware'), info.get('security_patch'), info.get('boot_mode')))
-        conn.commit()
+def insert_device_profile(info: dict):
+    """Insert or update a device profile."""
+    with get_session() as session:
+        device = session.query(DeviceProfile).filter_by(model=info.get('model')).first()
+        if device:
+            device.brand = info.get('brand')
+            device.os_version = info.get('os_version')
+            device.firmware = info.get('firmware')
+            device.security_patch = info.get('security_patch')
+            device.boot_mode = info.get('boot_mode')
+            device.last_quarried = datetime.datetime.utcnow()
+        else:
+            session.add(DeviceProfile(**info))
 
 def query_methods(os_version):
     """Query root methods by compatibility."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM methods WHERE compatibility LIKE ?", (f'%{os_version}%',))
-        return cursor.fetchall()
+    with get_session() as session:
+        return session.query(Method).filter(Method.compatibility.like(f'%{os_version}%')).all()
 
 def store_urls(model, structure):
     """Store URLs/placeholders for a model."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
+    with get_session() as session:
         for comp, urls in structure.items():
             for typ, url in urls.items():
-                cursor.execute('''
-                    INSERT OR REPLACE INTO urls_placeholders (model, component, url, type)
-                    VALUES (?, ?, ?, ?)
-                ''', (model, comp, url, typ))
-        conn.commit()
+                session.add(UrlPlaceholder(model=model, component=comp, url=url, type=typ))
 
 def get_url(model, component, type):
     """Gets a URL for a specific component and type."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT url, checksum FROM urls_placeholders WHERE model = ? AND component = ? AND type = ?", (model, component, type))
-        result = cursor.fetchone()
-        if result:
-            return {"url": result[0], "checksum": result[1]}
-        return None
-
-def log_operation(model, operation, log_data, status):
-    """Log an operation."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO logs (model, operation, log_data, status)
-            VALUES (?, ?, ?, ?)
-        ''', (model, operation, log_data, status))
-        conn.commit()
-
-def get_schema_version():
-    """Get current schema version."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT value FROM db_metadata WHERE key = 'schema_version'")
-        result = cursor.fetchone()
-        return int(result[0]) if result else 0
+    with get_session() as session:
+        return session.query(UrlPlaceholder).filter_by(model=model, component=component, type=type).first()
 
 def set_url_verified(model, component, type, verified=True):
     """Updates the verified status of a URL."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            UPDATE urls_placeholders 
-            SET verified = ? 
-            WHERE model = ? AND component = ? AND type = ?
-        ''', (verified, model, component, type))
-        conn.commit()
+    with get_session() as session:
+        url = session.query(UrlPlaceholder).filter_by(model=model, component=component, type=type).first()
+        if url:
+            url.verified = verified
 
 def store_tailored_options(model, option, tailored_data):
     """Stores AI-tailored options in the database."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO ai_tailored_options (model, option, tailored_data)
-            VALUES (?, ?, ?)
-        ''', (model, option, tailored_data))
-        conn.commit()
+    with get_session() as session:
+        session.add(AiTailoredOption(model=model, option=option, tailored_data=tailored_data))
 
-# Additional functions for other tables can be added similarly
+def log_operation(model, operation, log_data, status):
+    """Log an operation."""
+    with get_session() as session:
+        session.add(Log(model=model, operation=operation, log_data=log_data, status=status))
+
+def get_schema_version():
+    """Get current schema version."""
+    with get_session() as session:
+        meta = session.query(DbMetadata).filter_by(key='schema_version').first()
+        return int(meta.value) if meta else 0
+
+def prune_logs(days=30):
+    """Prunes logs older than a certain number of days."""
+    with get_session() as session:
+        limit = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+        session.query(Log).filter(Log.timestamp < limit).delete()
+        session.execute("VACUUM")
