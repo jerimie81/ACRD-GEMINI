@@ -1,1 +1,4 @@
-Pull warnings for {brand} {model} rooting from brand-specific docs in {AGENT_TOOL_DOCS.md}.
+Pull warnings for {brand} {model} rooting from brand-specific docs and general Android security knowledge.
+Reference AGENT_TOOL_DOCS.md for any specific tool warnings.
+Provide a concise list of risks (e.g., Knox trip for Samsung, data wipe, warranty void).
+Output should be a clear, human-readable warning message.

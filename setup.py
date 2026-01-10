@@ -266,15 +266,25 @@ def main():
         
         if url:
             os.makedirs(dest_folder, exist_ok=True)
-            temp_file = os.path.join(dest_folder, os.path.basename(url))
+            temp_file = os.path.join(dest_folder, os.path.basename(url.split('?')[0]))
             try:
                 download_file(url, temp_file)
                 extract_file(temp_file, dest_folder, metadata["type"])
             except Exception as e:
                 print(f"Failed to download/extract {tool_name}: {e}")
         else:
-            # TODO: Handle manual downloads (e.g., print instructions)
-            print(f"Skipping download for {tool_name} (manual download required). See {metadata.get('doc_url')}")
+            # Handle manual downloads
+            print(f"\n[!] Manual action required for: {tool_name.upper()}")
+            print(f"    Category: {metadata['category']}")
+            print(f"    Instructions: Please visit {metadata.get('doc_url')}")
+            if metadata["type"] == "manual":
+                print("    Note: This tool is proprietary or requires manual download.")
+            elif metadata["type"] == "pip":
+                print(f"    Note: Install via: pip install {tool_name}")
+            elif metadata["type"] == "package":
+                print(f"    Note: Install via your system package manager (apt/brew/etc.).")
+            elif metadata["type"] == "source":
+                print(f"    Note: Clone the repository and build from source.")
         
         # Populate DB
         db_manager.add_tool_config(

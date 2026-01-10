@@ -189,4 +189,25 @@ def get_schema_version():
         result = cursor.fetchone()
         return int(result[0]) if result else 0
 
+def set_url_verified(model, component, type, verified=True):
+    """Updates the verified status of a URL."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE urls_placeholders 
+            SET verified = ? 
+            WHERE model = ? AND component = ? AND type = ?
+        ''', (verified, model, component, type))
+        conn.commit()
+
+def store_tailored_options(model, option, tailored_data):
+    """Stores AI-tailored options in the database."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO ai_tailored_options (model, option, tailored_data)
+            VALUES (?, ?, ?)
+        ''', (model, option, tailored_data))
+        conn.commit()
+
 # Additional functions for other tables can be added similarly

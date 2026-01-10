@@ -2,15 +2,43 @@
 
 import subprocess
 import config
+import os
+
+current_serial = None
+
+def set_target_device(serial):
+    """Sets the target device for ADB commands."""
+    global current_serial
+    current_serial = serial
 
 def run_adb_command(command):
     """Runs an ADB command."""
+    global current_serial
+    full_command = [config.ADB_PATH]
+    if current_serial:
+        full_command += ['-s', current_serial]
+    
     try:
-        result = subprocess.run([config.ADB_PATH] + command, check=True, capture_output=True, text=True)
+        result = subprocess.run(full_command + command, check=True, capture_output=True, text=True)
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         print(f"Error executing ADB command: {e}")
         return None
+
+def list_devices():
+    """Lists connected ADB devices."""
+    if not os.path.exists(config.ADB_PATH):
+        return []
+    try:
+        output = subprocess.run([config.ADB_PATH, 'devices'], check=True, capture_output=True, text=True).stdout
+        devices = []
+        for line in output.splitlines()[1:]:
+            if line.strip() and '\tdevice' in line:
+                serial = line.split('\t')[0]
+                devices.append(serial)
+        return devices
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return []
 
 def get_prop(prop):
     """Gets a device property."""

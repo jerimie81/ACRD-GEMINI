@@ -1,3 +1,5 @@
 rich
 google-generativeai
 requests
+sqlalchemy
+pytest

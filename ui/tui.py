@@ -3,7 +3,23 @@
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from modules import download, root, compile, decompile, diagnostic, debug, repair
+from modules import download, root, compile, decompile, diagnostic, debug, repair, ai_integration, db_manager
+import json
+
+def get_tailored_options(option, device_info):
+    """Gets tailored options for a specific menu item using AI."""
+    with open('templates/option_tailor_prompt.txt', 'r') as f:
+        template = f.read()
+    
+    prompt = template.format(option=option, device_specs=json.dumps(device_info))
+    ai_integration.initialize_gemini()
+    tailored = ai_integration.gemini_generate_content(prompt)
+    
+    # Store in DB for caching
+    if isinstance(tailored, dict):
+        db_manager.store_tailored_options(device_info['model'], option, json.dumps(tailored))
+        return tailored
+    return {}
 
 def launch_tui(device_info):
     """Launches the Text-based User Interface."""
@@ -42,7 +58,8 @@ def launch_tui(device_info):
             type = console.input("Enter type (e.g., custom, stock): ")
             download.download_component(device_info['model'], component, type)
         elif choice == '2':
-            root.root_device(device_info)
+            if console.input("[bold red]WARNING: Rooting can brick your device and voids warranty. Continue? (y/N): [/bold red]").lower() == 'y':
+                root.root_device(device_info)
         elif choice == '3':
             compile_menu = Table(show_header=False, show_lines=True)
             compile_menu.add_column("Option", style="cyan")
@@ -82,7 +99,8 @@ def launch_tui(device_info):
             if decompile_choice == '1':
                 apk_path = console.input("Enter APK path: ")
                 output_path = console.input("Enter output path: ")
-                decompile.decompile_apk(apk_path, output_path)
+                tool = console.input("Select tool (1 for apktool, 2 for jadx) [1]: ") or "1"
+                decompile.decompile_apk(apk_path, output_path, tool='jadx' if tool == '2' else 'apktool')
             elif decompile_choice == '2':
                 boot_img_path = console.input("Enter boot image path: ")
                 output_path = console.input("Enter output path: ")
@@ -100,6 +118,7 @@ def launch_tui(device_info):
         elif choice == '6':
             debug.start_logcat(device_info)
         elif choice == '7':
-            repair.repair_device(device_info)
+            if console.input("[bold red]WARNING: Repair/Flashing can result in data loss. Continue? (y/N): [/bold red]").lower() == 'y':
+                repair.repair_device(device_info)
         elif choice == 'q':
             break

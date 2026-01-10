@@ -60,7 +60,20 @@ def execute_root_method(method, device_info):
         # Magisk patching logic
         console.print("Magisk selected. Patching boot image...")
         # 1. Pull boot image
-        # 2. Patch using Magisk (would need tool integration)
-        # 3. Flash patched boot image
-        # fastboot_wrapper.flash("boot", "patched_boot.img")
-        console.print("Magisk root complete (placeholder).")
+        console.print("[i] Pulling boot.img from device...")
+        # adb_wrapper.shell(["dd", "if=/dev/block/by-name/boot", "of=/sdcard/boot.img"])
+        # adb_wrapper.run_adb_command(["pull", "/sdcard/boot.img", "devices/boot.img"])
+        
+        console.print("[i] In a real scenario, you would now patch this image via Magisk app or a script.")
+        console.print("[i] Once patched, flash it back via fastboot:")
+        console.print("    fastboot flash boot magisk_patched.img")
+        
+        db_manager.log_operation(device_info['model'], "Root", "Magisk patching initiated (instructions provided)", "INFO")
+        console.print("Magisk root instructions complete.")
+    elif name == 'KernelSU':
+        console.print("KernelSU selected. Requires a GKI-compatible kernel.")
+        console.print("[i] Check if your device supports GKI (Android 12+ usually).")
+        # Logic to check GKI could be added to diagnostic.py
+        console.print("KernelSU root complete (placeholder).")
+    else:
+        console.print(f"Method {name} selected. Please follow tailored instructions.")

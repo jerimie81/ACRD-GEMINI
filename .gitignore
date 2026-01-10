@@ -26,8 +26,6 @@ wheels/
 MANIFEST
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -113,7 +111,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# tooling
+# Project specific
 /tools
 /devices
 /db/acrd.db
+.idea/

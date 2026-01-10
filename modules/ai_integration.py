@@ -6,31 +6,50 @@ import json
 
 def initialize_gemini():
     """Initialize Gemini client."""
+    if not config.GEMINI_API_KEY or config.GEMINI_API_KEY == 'your_api_key_here':
+        print("Warning: GEMINI_API_KEY is not set. AI features will be limited.")
+        return False
     genai.configure(api_key=config.GEMINI_API_KEY)
+    return True
 
-def gemini_generate_content(prompt, max_length=2048):
+def gemini_generate_content(prompt, max_length=4096):
     """
     Generate content using Gemini with prompt optimization and hallucination handling.
     """
-    # Truncate the prompt to avoid exceeding token limits
+    if not config.GEMINI_API_KEY or config.GEMINI_API_KEY == 'your_api_key_here':
+        return "AI response unavailable (API key not set)."
+
+    # Truncate the prompt to avoid exceeding token limits (basic optimization)
     optimized_prompt = prompt[:max_length]
 
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    response = model.generate_content(optimized_prompt)
-
     try:
-        # Attempt to parse the response as JSON, a common source of hallucinations
-        # Some responses might be wrapped in ```json ... ```
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(optimized_prompt)
+        
+        if not response or not response.text:
+            return "No response from AI."
+
         text = response.text.strip()
-        if text.startswith("```json") and text.endswith("```"):
-            text = text[7:-3].strip()
-        elif text.startswith("```") and text.endswith("```"):
-            text = text[3:-3].strip()
-            
-        return json.loads(text)
-    except (json.JSONDecodeError, TypeError, AttributeError):
-        # If it's not valid JSON, return the raw text
-        return response.text
+        
+        # Hallucination handling: Clean up potential Markdown code blocks
+        if text.startswith("```"):
+            lines = text.splitlines()
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].startswith("```"):
+                lines = lines[:-1]
+            text = "\n".join(lines).strip()
+
+        # Validation: Attempt to parse as JSON if it looks like JSON
+        if (text.startswith("{") and text.endswith("}")) or (text.startswith("[") and text.endswith("]")):
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                pass
+        
+        return text
+    except Exception as e:
+        return f"AI Generation error: {str(e)}"
 
 def get_embedding(text):
     """

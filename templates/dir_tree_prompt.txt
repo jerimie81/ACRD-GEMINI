@@ -1,1 +1,5 @@
-Based on device info {info}, create a directory tree with placeholders for {components}. Source URLs from AGENT_TOOL_DOCS.md hubs. Return a JSON object where keys are components and values are dictionaries of type: url.
+Based on device info {info}, create a directory tree with placeholders for {components}. 
+Source URLs from AGENT_TOOL_DOCS.md hubs (e.g., XDA, GitHub, manufacturer sites). 
+Return a JSON object where keys are components and values are dictionaries of {{"type": "url"}}.
+Ensure the URLs are as specific as possible to the device model.
+If a specific URL is not known, use a placeholder like "SEARCH_XDA_FOR_{model}_{{component}}".

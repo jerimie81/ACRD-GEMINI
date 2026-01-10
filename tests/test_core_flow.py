@@ -38,7 +38,7 @@ class TestCoreFlow(unittest.TestCase):
             shutil.rmtree(self.device_dir)
 
     @patch('modules.device_quarry.quarry_device')
-    @patch('modules.ai_integration.gemini_generate_content')
+    @patch('modules.dir_tree_generator.gemini_generate_content')
     def test_quarry_to_dirtree_flow(self, mock_gemini, mock_quarry):
         # Setup mocks
         mock_quarry.return_value = self.mock_device

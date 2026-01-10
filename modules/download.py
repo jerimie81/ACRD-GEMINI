@@ -4,18 +4,31 @@ import os
 import requests
 import hashlib
 from modules import db_manager
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
 
 def download_file(url, destination):
-    """Downloads a file from a URL to a destination."""
+    """Downloads a file from a URL to a destination with a progress bar."""
     try:
         # Ensure the destination directory exists
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         
         with requests.get(url, stream=True) as r:
             r.raise_for_status()
-            with open(destination, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
+            total_size = int(r.headers.get('content-length', 0))
+            
+            with Progress(
+                TextColumn("[bold blue]{task.description}"),
+                BarColumn(),
+                DownloadColumn(),
+                TransferSpeedColumn(),
+                TimeRemainingColumn(),
+            ) as progress:
+                task = progress.add_task(f"Downloading {os.path.basename(destination)}", total=total_size)
+                
+                with open(destination, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                        progress.update(task, advance=len(chunk))
         return True
     except requests.exceptions.RequestException as e:
         print(f"Error downloading file: {e}")
@@ -40,11 +53,24 @@ def download_component(model, component, type):
     url = url_info['url']
     checksum = url_info.get('checksum')
     
-    # TODO: Determine a proper destination path
-    destination = f"downloads/{model}/{component}_{type}"
+    if "SEARCH_XDA" in url or "placeholder" in url:
+        print(f"The URL for {component} ({type}) is currently a placeholder: {url}")
+        print("Please provide a valid URL or check the database later.")
+        return
 
+    # Determine a proper destination path under devices/
+    model_sanitized = model.replace(' ', '_')
+    destination = f"devices/{model_sanitized}/{component}/{type}_{os.path.basename(url)}"
+
+    print(f"Starting download of {component} ({type})...")
     if download_file(url, destination):
         if checksum and not verify_checksum(destination, checksum):
-            print("Checksum verification failed!")
+            print(f"[red]Checksum verification failed for {destination}![/red]")
+            # Log the failure
+            db_manager.log_operation(model, f"Download {component} {type}", f"Checksum mismatch: {checksum}", "FAILED")
         else:
-            print(f"Successfully downloaded {component} {type} for {model}")
+            print(f"Successfully downloaded {component} {type} to {destination}")
+            # Log the success
+            db_manager.log_operation(model, f"Download {component} {type}", f"Downloaded to {destination}", "SUCCESS")
+            # Update verified status in DB
+            db_manager.set_url_verified(model, component, type, True)

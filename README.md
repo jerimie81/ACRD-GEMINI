@@ -75,11 +75,20 @@ ACRD-GEMINI/
     ```
 
 ## Usage
-To start the tool, simply run the launcher script:
+To start the tool, you can use the launcher script or run `main.py` directly with various options:
+
 ```bash
+# Standard TUI launch (via launcher)
 ./launch.sh
+
+# Direct launch with CLI arguments
+python main.py [OPTIONS]
 ```
-Follow the on-screen prompts in the TUI to interact with your connected Android device.
+
+### CLI Arguments
+- `--quarry-only`: Detect and quarry the connected device, then exit.
+- `--check-config`: Validate the configuration and check if all required tools are available.
+- `--no-tui`: Run the tool without the Text-based User Interface (useful for automation).
 
 ## Configuration
 The tool uses a `config.py` file and environment variables for configuration.
@@ -103,6 +112,9 @@ python -m unittest discover tests
 - **`main.py`**: The primary entry point for the application.
 - **`db/Alembic/integrate_into_setup.py`**: Script to integrate Alembic migration execution into the main `setup.py` flow.
 - **`db/Alembic/modify_migrations-env.py`**: Helper script to adjust Alembic's `env.py` for dynamic DB path resolution.
+
+## Contributing
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to report issues, suggest features, and submit pull requests.
 
 ## License
 This project is licensed under the [LICENSE](LICENSE) file found in the root directory.

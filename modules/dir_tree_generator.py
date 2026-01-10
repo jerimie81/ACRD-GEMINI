@@ -18,7 +18,8 @@ def generate_dir_tree(device_info):
     # Fill template
     prompt = prompt_template.format(
         info=json.dumps(device_info),
-        components='recoveries, kernels, firmware'
+        components='recoveries, kernels, firmware',
+        model=device_info.get('model', 'unknown_device')
     )
 
     # Generate content via Gemini
@@ -51,6 +52,6 @@ def generate_dir_tree(device_info):
             json.dump(dir_structure.get(component, {}), f)
 
     # Store URLs in DB
-    db_manager.store_urls(model, dir_structure)
+    db_manager.store_urls(device_info['model'], dir_structure)
 
     return base_path

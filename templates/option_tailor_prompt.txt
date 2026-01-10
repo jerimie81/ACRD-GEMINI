@@ -1,1 +1,4 @@
-Tailor {option} subsections for {device_specs} using compatibility from DB.
+Tailor {option} subsections for {device_specs} using compatibility information from the database and general Android engineering knowledge.
+Identify which specific sub-options or parameters are most relevant for this device.
+Return a JSON object with tailored options and descriptions.
+Example for "Root": {{"Magisk": "Patching boot.img is recommended for this kernel version", "KernelSU": "Supported as GKI is present"}}.

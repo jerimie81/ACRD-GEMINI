@@ -2,9 +2,12 @@
 
 import subprocess
 import config
+import os
 
 def run_heimdall_command(command):
     """Runs a Heimdall command."""
+    if not os.path.exists(config.HEIMDALL_PATH):
+        return None
     try:
         result = subprocess.run([config.HEIMDALL_PATH] + command, check=True, capture_output=True, text=True)
         return result.stdout.strip()

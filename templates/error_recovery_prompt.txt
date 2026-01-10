@@ -1,1 +1,8 @@
-Analyze log {log} and suggest repair for {issue}; reference {AGENT_TOOL_DOCS.md} for tools.
+Analyze the following log/error:
+{log}
+
+The issue occurred during: {issue}
+
+Suggest a repair or next step, referencing AGENT_TOOL_DOCS.md for appropriate tools if needed.
+Provide a clear explanation of why the error occurred and a step-by-step recovery plan.
+Keep it concise and technical.
