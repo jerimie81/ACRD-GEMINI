@@ -1,39 +1,91 @@
-name: ACRD-GEMINI Workflow
+name: ACRD-GEMINI Expanded Pipeline
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch: # Allows you to manually trigger the workflow from the GitHub UI
 
 jobs:
-  build-and-run:
+  # JOB 1: QUALITY & SECURITY CHECKS
+  quality-check:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip' # Caches dependencies to speed up future runs
+
+      - name: Install Linting Tools
+        run: |
+          pip install flake8 bandit black
+
+      - name: Lint with Flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Security Audit with Bandit
+        run: |
+          # Scans for security issues in your code
+          bandit -r . -f custom
+
+  # JOB 2: TEST ACROSS VERSIONS
+  test:
+    needs: quality-check # Only runs if quality-check passes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"] # Test on multiple versions
 
     steps:
-    # 1. Check out your code
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    # 2. Set up Python (adjust version if needed)
-    - name: Set up Python
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10' 
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
 
-    # 3. Install dependencies
-    - name: Install dependencies
+    - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        # If you don't have a requirements.txt, you might need to manually install libraries:
-        # pip install google-genai
+        # Ensure pytest is installed for testing
+        pip install pytest
 
-    # 4. Run your main script or tests
-    - name: Run ACRD Analysis
+    - name: Run Tests
       env:
-        # This securely pulls your API key from GitHub Secrets
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
-        # Replace 'main.py' with the actual name of your script
-        python main.py
+        # Runs any tests named 'test_*.py' or '*_test.py'
+        # If you don't have tests yet, this step will just print a message
+        if ls tests/*.py 1> /dev/null 2>&1; then
+          pytest
+        else
+          echo "No tests found, skipping pytest."
+        fi
+
+  # JOB 3: BUILD & ARTIFACT
+  build:
+    needs: test # Only runs if tests pass
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Archive Production Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: acrd-gemini-build
+          path: |
+            .
+            !venv/
+            !.git/
+            !__pycache__/
+          retention-days: 90
