@@ -1,0 +1,1 @@
+Pull warnings for {brand} {model} rooting from brand-specific docs in {AGENT_TOOL_DOCS.md}.

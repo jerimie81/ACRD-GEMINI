@@ -1,7 +1,7 @@
 # tests/test_db.py
 
 import unittest
-from db import db_manager
+from modules import db_manager
 
 class TestDb(unittest.TestCase):
 
@@ -17,7 +17,12 @@ class TestDb(unittest.TestCase):
             'os_version': '14',
         }
         db_manager.insert_device_profile(device_info)
-        # TODO: Add assertion
+        
+        with db_manager.get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT brand FROM device_profiles WHERE model = 'Pixel 6'")
+            result = cursor.fetchone()
+            self.assertEqual(result[0], 'Google')
 
 if __name__ == '__main__':
     unittest.main()

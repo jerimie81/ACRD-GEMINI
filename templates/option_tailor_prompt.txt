@@ -1,0 +1,1 @@
+Tailor {option} subsections for {device_specs} using compatibility from DB.

@@ -3,6 +3,7 @@
 import os
 import json
 from modules.ai_integration import gemini_generate_content
+from modules import db_manager
 
 def generate_dir_tree(device_info):
     """Use Gemini to generate device-specific dir tree with placeholders.
@@ -24,16 +25,18 @@ def generate_dir_tree(device_info):
     response = gemini_generate_content(prompt)
 
     # For POC, assume response is JSON-like dir structure
-    # Parse response (handle potential hallucinations with try-except)
-    try:
-        dir_structure = json.loads(response)  # e.g., {"recoveries": {"custom": "url_twrp", "stock": "url_stock"}, ...}
-    except json.JSONDecodeError:
-        print("Gemini response not valid JSON. Using default structure.")
-        dir_structure = {
-            "recoveries": {"custom": "placeholder_twrp_url", "stock": "placeholder_stock_url"},
-            "kernels": {"custom": "placeholder_custom_url", "stock": "placeholder_stock_url"},
-            "firmware": {"custom": "placeholder_custom_url", "stock": "placeholder_stock_url"}
-        }
+    if isinstance(response, dict):
+        dir_structure = response
+    else:
+        try:
+            dir_structure = json.loads(response)  # e.g., {"recoveries": {"custom": "url_twrp", "stock": "url_stock"}, ...}
+        except (json.JSONDecodeError, TypeError):
+            print("Gemini response not valid JSON. Using default structure.")
+            dir_structure = {
+                "recoveries": {"custom": "placeholder_twrp_url", "stock": "placeholder_stock_url"},
+                "kernels": {"custom": "placeholder_custom_url", "stock": "placeholder_stock_url"},
+                "firmware": {"custom": "placeholder_custom_url", "stock": "placeholder_stock_url"}
+            }
 
     # Create dir tree
     model = device_info['model'].replace(' ', '_')  # Sanitize
@@ -47,18 +50,7 @@ def generate_dir_tree(device_info):
         with open(os.path.join(comp_path, 'placeholders.json'), 'w') as f:
             json.dump(dir_structure.get(component, {}), f)
 
-    # Store URLs in DB (placeholders for now; in full, Gemini sources from AGENT_TOOL_DOCS.md)
-    import sqlite3
-    import config
-    conn = sqlite3.connect(config.DB_PATH)
-    cursor = conn.cursor()
-    for comp, urls in dir_structure.items():
-        for typ, url in urls.items():
-            cursor.execute('''
-                INSERT OR REPLACE INTO urls_placeholders (model, component, url, type)
-                VALUES (?, ?, ?, ?)
-            ''', (model, comp, url, typ))
-    conn.commit()
-    conn.close()
+    # Store URLs in DB
+    db_manager.store_urls(model, dir_structure)
 
     return base_path

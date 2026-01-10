@@ -112,11 +112,10 @@ def init_db():
         ''')
         
         # Example tool_configs from AGENT_TOOL_DOCS.md
-        # This will be populated by setup.py
-        # cursor.execute('''
-        #     INSERT OR REPLACE INTO tool_configs (tool_name, path, version, source_url)
-        #     VALUES ('adb', 'tools/adb', 'latest', 'https://developer.android.com/tools/releases/platform-tools')
-        # ''')
+        cursor.execute('''
+            INSERT OR REPLACE INTO tool_configs (tool_name, path, version, source_url)
+            VALUES ('adb', 'tools/adb', 'latest', 'https://developer.android.com/tools/releases/platform-tools')
+        ''')
         # Add more tools similarly
         
         conn.commit()
@@ -131,7 +130,7 @@ def add_tool_config(tool_name, path, version, source_url):
         ''', (tool_name, path, version, source_url))
         conn.commit()
 
-def insert_device_profile(info: dict) -> None:
+def insert_device_profile(info):
     """Insert or update device profile."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -189,14 +188,5 @@ def get_schema_version():
         cursor.execute("SELECT value FROM db_metadata WHERE key = 'schema_version'")
         result = cursor.fetchone()
         return int(result[0]) if result else 0
-
-def prune_logs(days=30):
-    """Prunes logs older than a certain number of days."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute(f"DELETE FROM logs WHERE timestamp < datetime('now', '-{days} days')")
-        conn.commit()
-        cursor.execute("VACUUM")
-        conn.commit()
 
 # Additional functions for other tables can be added similarly

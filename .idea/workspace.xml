@@ -1,42 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="0bb8ae5d-7b14-4249-8238-acca88ebc741" name="Changes" comment="" />
+    <list default="true" id="0bb8ae5d-7b14-4249-8238-acca88ebc741" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/documentation/EXTENSIBILITY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/db_manager.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/remove_device.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/prune_logs.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_core_flow.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_safety.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_setup.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/verify_urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ACRD-GEMINI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ACRD-GEMINI.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/acrd.db" beforeDir="false" afterPath="$PROJECT_DIR$/db/acrd.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/db_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/db_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/ai_integration.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/ai_integration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/compile.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/compile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/debug.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/debug.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/decompile.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/decompile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/device_quarry.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/device_quarry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/diagnostic.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/diagnostic.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/dir_tree_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/dir_tree_generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/download.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/download.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/hal/adb_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/hal/adb_wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/hal/device_quarry.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/hal/fastboot_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/hal/fastboot_wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/hal/heimdall_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/hal/heimdall_wrapper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/repair.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/repair.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/root.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/root.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/dir_tree_prompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/templates/dir_tree_prompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/error_recovery_prompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/templates/error_recovery_prompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/option_tailor_prompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/templates/option_tailor_prompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/root_warning_prompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/templates/root_warning_prompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_ai.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_ai.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_hal.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_hal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_modules.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/tui.py" beforeDir="false" afterPath="$PROJECT_DIR$/ui/tui.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="64" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;jerimie81&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/jerimie81/ACRD-GEMINI.git&quot;,
+    &quot;accountId&quot;: &quot;b8374728-5b0a-47fc-b3eb-72a99e0314a8&quot;
+  }
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="383YiNFygPbjAj0ihNWE8i85HoG" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.db_manager.executor": "Debug",
+    "Python.setup.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "ai.playground.ignore.import.keys.banner.in.settings": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "master",
     "junie.onboarding.icon.badge.shown": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "aDefault",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -56,8 +130,21 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1768029848443</updated>
-      <workItem from="1768029849798" duration="5000" />
+      <workItem from="1768029849798" duration="967000" />
+      <workItem from="1768030835510" duration="631000" />
+      <workItem from="1768047048740" duration="3147000" />
+      <workItem from="1768052605612" duration="2676000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="LAST_COMMIT_MESSAGE" value="" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ACRD_GEMINI$setup.coverage" NAME="setup Coverage Results" MODIFIED="1768031458415" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ACRD_GEMINI$db_manager.coverage" NAME="db_manager Coverage Results" MODIFIED="1768055053628" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/db" />
   </component>
 </project>
