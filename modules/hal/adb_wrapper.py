@@ -1,69 +1,67 @@
 # modules/hal/adb_wrapper.py
 
 import subprocess
-import config
-import os
+from .tool_wrapper import ToolWrapper
 
-current_serial = None
+class AdbWrapper(ToolWrapper):
+    def __init__(self, tool_path, serial=None):
+        super().__init__(tool_path)
+        self.serial = serial
 
-def set_target_device(serial):
-    """Sets the target device for ADB commands."""
-    global current_serial
-    current_serial = serial
+    def _run_adb_command(self, command):
+        adb_command = []
+        if self.serial:
+            adb_command += ['-s', self.serial]
+        
+        adb_command += command
+        
+        result = self._run_command(adb_command)
+        return result.stdout.strip() if result else None
 
-def run_adb_command(command):
-    """Runs an ADB command."""
-    global current_serial
-    full_command = [config.ADB_PATH]
-    if current_serial:
-        full_command += ['-s', current_serial]
+    @staticmethod
+    def list_devices(tool_path):
+        """Lists connected ADB devices."""
+        wrapper = ToolWrapper(tool_path)
+        result = wrapper._run_command(['devices'])
+        if not result:
+            return []
+        
+        # Skip the first line "List of devices attached"
+        output = '\n'.join(result.stdout.strip().split('\n')[1:])
+        return ToolWrapper._parse_device_list(output, '\tdevice')
+
+    def get_prop(self, prop):
+        """Gets a device property."""
+        return self._run_adb_command(['shell', 'getprop', prop])
+
+    def shell(self, command):
+        """Executes a shell command on the device."""
+        return self._run_adb_command(['shell'] + command)
     
-    try:
-        result = subprocess.run(full_command + command, check=True, capture_output=True, text=True)
-        return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Error executing ADB command: {e}")
-        return None
+    def pull(self, remote_path, local_path):
+        """Pulls a file from the device."""
+        return self._run_adb_command(['pull', remote_path, local_path])
 
-def list_devices():
-    """Lists connected ADB devices."""
-    if not os.path.exists(config.ADB_PATH):
-        return []
-    try:
-        output = subprocess.run([config.ADB_PATH, 'devices'], check=True, capture_output=True, text=True).stdout
-        devices = []
-        for line in output.splitlines()[1:]:
-            if line.strip() and '\tdevice' in line:
-                serial = line.split('\t')[0]
-                devices.append(serial)
-        return devices
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return []
+    def push(self, local_path, remote_path):
+        """Pushes a file to the device."""
+        return self._run_adb_command(['push', local_path, remote_path])
 
-def get_prop(prop):
-    """Gets a device property."""
-    return run_adb_command(['shell', 'getprop', prop])
+    def logcat(self, options=None, stream=False):
+        """Gets a device logcat. If stream is True, returns a subprocess.Popen object."""
+        if options is None:
+            options = []
+        
+        logcat_command = ['logcat'] + options
 
-def shell(command):
-    """Executes a shell command on the device."""
-    return run_adb_command(['shell'] + command)
+        if stream:
+            command = [self.tool_path]
+            if self.serial:
+                command += ['-s', self.serial]
+            command += logcat_command
+            return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
-def logcat(options=None, stream=False):
-    """Gets a device logcat. If stream is True, returns a subprocess.Popen object."""
-    if options is None:
-        options = []
-    
-    command = [config.ADB_PATH, 'logcat'] + options
-    if stream:
-        return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    
-    try:
-        result = subprocess.run(command, check=True, capture_output=True, text=True)
-        return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Error executing ADB logcat: {e}")
-        return None
+        return self._run_adb_command(logcat_command)
 
-def dmesg():
-    """Gets the device's dmesg log."""
-    return run_adb_command(['shell', 'dmesg'])
+    def dmesg(self):
+        """Gets the device's dmesg log."""
+        return self._run_adb_command(['shell', 'dmesg'])

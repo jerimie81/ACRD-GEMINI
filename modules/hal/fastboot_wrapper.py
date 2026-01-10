@@ -1,54 +1,41 @@
 # modules/hal/fastboot_wrapper.py
 
-import subprocess
-import config
-import os
+from .tool_wrapper import ToolWrapper
 
-current_serial = None
+class FastbootWrapper(ToolWrapper):
+    def __init__(self, tool_path, serial=None):
+        super().__init__(tool_path)
+        self.serial = serial
 
-def set_target_device(serial):
-    """Sets the target device for fastboot commands."""
-    global current_serial
-    current_serial = serial
+    def _run_fastboot_command(self, command):
+        fb_command = []
+        if self.serial:
+            fb_command += ['-s', self.serial]
+        
+        fb_command += command
+        
+        result = self._run_command(fb_command)
+        # Fastboot often outputs info to stderr, so we combine them
+        return (result.stdout + result.stderr).strip() if result else None
 
-def run_fastboot_command(command):
-    """Runs a fastboot command."""
-    global current_serial
-    full_command = [config.FASTBOOT_PATH]
-    if current_serial:
-        full_command += ['-s', current_serial]
-    
-    try:
-        # Fastboot often outputs info to stderr
-        result = subprocess.run(full_command + command, check=True, capture_output=True, text=True)
-        return (result.stdout + result.stderr).strip()
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Error executing fastboot command: {e}")
-        return None
+    @staticmethod
+    def list_devices(tool_path):
+        """Lists connected fastboot devices."""
+        wrapper = ToolWrapper(tool_path)
+        result = wrapper._run_command(['devices'])
+        if not result:
+            return []
+        
+        return ToolWrapper._parse_device_list(result.stdout, '\tfastboot')
 
-def list_devices():
-    """Lists connected fastboot devices."""
-    if not os.path.exists(config.FASTBOOT_PATH):
-        return []
-    try:
-        output = subprocess.run([config.FASTBOOT_PATH, 'devices'], check=True, capture_output=True, text=True).stdout
-        devices = []
-        for line in output.splitlines():
-            if line.strip() and '\tfastboot' in line:
-                serial = line.split('\t')[0]
-                devices.append(serial)
-        return devices
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return []
+    def getvar(self, variable):
+        """Gets a fastboot variable."""
+        return self._run_fastboot_command(['getvar', variable])
 
-def getvar(variable):
-    """Gets a fastboot variable."""
-    return run_fastboot_command(['getvar', variable])
+    def flash(self, partition, file):
+        """Flashes a file to a partition."""
+        return self._run_fastboot_command(['flash', partition, file])
 
-def flash(partition, file):
-    """Flashes a file to a partition."""
-    return run_fastboot_command(['flash', partition, file])
-
-def boot(image):
-    """Boots a specific image."""
-    return run_fastboot_command(['boot', image])
+    def boot(self, image):
+        """Boots a specific image."""
+        return self._run_fastboot_command(['boot', image])
