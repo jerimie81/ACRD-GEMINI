@@ -35,24 +35,24 @@ def sign_avb(image_path, key_path, avbtool_path):
     Signs an image with AVB (Android Verified Boot).
     """
     console = Console()
-    console.print(f"Signing {image_path} with AVB key {key_path}...")
-    try:
-        # avbtool add_hash_footer --image image.img --partition_name boot --partition_size ... --key key.pem --algorithm SHA256_RSA2048
-        subprocess.run(['python3', avbtool_path, 'add_hash_footer', '--image', image_path, '--key', key_path], check=True)
-        console.print("AVB signing complete.")
-    except Exception as e:
-        console.print(f"[red]AVB signing failed: {e}[/red]")
+    with console.status(f"[bold green]Signing {image_path} with AVB key {key_path}...", spinner="dots"):
+        try:
+            # avbtool add_hash_footer --image image.img --partition_name boot --partition_size ... --key key.pem --algorithm SHA256_RSA2048
+            subprocess.run(['python3', avbtool_path, 'add_hash_footer', '--image', image_path, '--key', key_path], check=True, capture_output=True)
+            console.print("AVB signing complete.")
+        except Exception as e:
+            console.print(f"[red]AVB signing failed: {e}[/red]")
 
 def lpmake(output_path, partition_info, lpmake_path):
     """
     Creates a super image using lpmake.
     """
     console = Console()
-    console.print(f"Creating super image at {output_path}...")
-    try:
-        # lpmake --device-size ... --metadata-size ... --metadata-slots ... --partition ...
-        # command = [lpmake_path, '--output', output_path] + partition_info
-        # subprocess.run(command, check=True)
-        console.print("Super image creation complete (placeholder).")
-    except Exception as e:
-        console.print(f"[red]Super image creation failed: {e}[/red]")
+    with console.status(f"[bold green]Creating super image at {output_path}...", spinner="dots"):
+        try:
+            # lpmake --device-size ... --metadata-size ... --metadata-slots ... --partition ...
+            # command = [lpmake_path, '--output', output_path] + partition_info
+            # subprocess.run(command, check=True, capture_output=True)
+            console.print("Super image creation complete (placeholder).")
+        except Exception as e:
+            console.print(f"[red]Super image creation failed: {e}[/red]")

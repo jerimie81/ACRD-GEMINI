@@ -13,6 +13,9 @@ class TestCoreFlow(unittest.TestCase):
     def setUp(self):
         # Use a test database
         config.DB_PATH = "tests/test_acrd.db"
+        if os.path.exists(config.DB_PATH):
+            os.remove(config.DB_PATH)
+        db_manager.reset_engine()
         db_manager.init_db()
         
         # Mock device info
@@ -59,11 +62,10 @@ class TestCoreFlow(unittest.TestCase):
         db_manager.insert_device_profile(device_info)
         
         # Verify DB insertion
-        with db_manager.get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT brand FROM device_profiles WHERE model = ?", (device_info['model'],))
-            result = cursor.fetchone()
-            self.assertEqual(result[0], 'Google')
+        with db_manager.get_session() as session:
+            from db.models import DeviceProfile
+            device = session.query(DeviceProfile).filter_by(model=device_info['model']).first()
+            self.assertEqual(device.brand, 'Google')
 
         # 3. Generate Directory Tree
         # We need to mock the template reading since we might not want to rely on actual files

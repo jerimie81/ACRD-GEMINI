@@ -38,7 +38,7 @@ class TestDb(unittest.TestCase):
         db_manager.store_urls("Pixel_6", structure)
         url_info = db_manager.get_url("Pixel_6", "recoveries", "custom")
         self.assertIsNotNone(url_info)
-        self.assertEqual(url_info.url, "http://example.com/twrp.img")
+        self.assertEqual(url_info['url'], "http://example.com/twrp.img")
 
     def test_set_url_verified(self):
         db_manager.insert_device_profile({'model': 'Pixel_6', 'brand': 'Google'})
@@ -46,9 +46,8 @@ class TestDb(unittest.TestCase):
         
         db_manager.set_url_verified("Pixel_6", "recoveries", "custom", True)
         
-        with db_manager.get_session() as session:
-            url = session.query(UrlPlaceholder).filter_by(model='Pixel_6').first()
-            self.assertTrue(url.verified)
+        url_info = db_manager.get_url("Pixel_6", "recoveries", "custom")
+        self.assertTrue(url_info['verified'])
 
 
     def test_store_tailored_options(self):

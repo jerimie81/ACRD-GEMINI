@@ -23,17 +23,30 @@ class TestAi(unittest.TestCase):
         response = ai_integration.gemini_generate_content("test prompt")
         self.assertEqual(response, {"key": "value"})
 
-    @patch('config.GEMINI_API_KEY', 'your_api_key_here')
-    def test_gemini_no_key(self):
-        # Reset client
-        ai_integration._client = None
-        # Initialize with invalid key (simulated by initialize_gemini logic)
-        ai_integration.initialize_gemini('your_api_key_here')
+    @patch('config.GEMINI_API_KEY', 'test_key')
+    @patch('google.genai.Client')
+    def test_gemini_generate_content_plain_text(self, mock_client_cls):
+        mock_client = MagicMock()
+        mock_response = MagicMock()
+        mock_response.text = "Just some plain text"
+        mock_client.models.generate_content.return_value = mock_response
+        mock_client_cls.return_value = mock_client
+        ai_integration.initialize_gemini('test_key')
         
-        # Expect error because client wasn't initialized
-        with self.assertRaises(Exception) as cm:
-             ai_integration.gemini_generate_content("test prompt")
-        self.assertIn("Gemini client not initialized", str(cm.exception))
+        response = ai_integration.gemini_generate_content("test prompt")
+        self.assertEqual(response, "Just some plain text")
+
+    @patch('config.GEMINI_API_KEY', 'test_key')
+    @patch('google.genai.Client')
+    def test_gemini_generate_content_error(self, mock_client_cls):
+        mock_client = MagicMock()
+        mock_client.models.generate_content.side_effect = Exception("API Error")
+        mock_client_cls.return_value = mock_client
+        ai_integration.initialize_gemini('test_key')
+        
+        from modules.exceptions import AIError
+        with self.assertRaises(AIError):
+            ai_integration.gemini_generate_content("test prompt")
 
 if __name__ == '__main__':
     unittest.main()

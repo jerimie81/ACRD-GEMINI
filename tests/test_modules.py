@@ -18,9 +18,24 @@ class TestModules(unittest.TestCase):
         mock_run.assert_called_with(['java', '-jar', config.APKTOOL_PATH, 'd', '/path/to/app.apk', '-o', '/path/to/output'], check=True)
 
     @patch('subprocess.run')
-    def test_decompile_apk_jadx(self, mock_run):
-        decompile.decompile_apk('/path/to/app.apk', '/path/to/output', tool='jadx')
-        mock_run.assert_called_with([config.JADX_PATH, '-d', '/path/to/output', '/path/to/app.apk'], check=True)
+    def test_compile_rom(self, mock_run):
+        compile.compile_rom('/path/to/source', 'pixel6')
+        mock_run.assert_called_with(['make', '-C', '/path/to/source', 'target=pixel6'], check=True)
+
+    @patch('subprocess.run')
+    def test_sign_avb(self, mock_run):
+        compile.sign_avb('/path/to/img', '/path/to/key', 'avbtool')
+        mock_run.assert_called_with(['python3', 'avbtool', 'add_hash_footer', '--image', '/path/to/img', '--key', '/path/to/key'], check=True)
+
+    @patch('subprocess.run')
+    def test_decompile_boot_img(self, mock_run):
+        decompile.decompile_boot_img('/path/to/boot.img', '/path/to/out', 'abootimg')
+        mock_run.assert_called_with(['abootimg', '-x', '/path/to/boot.img', '-f', '/path/to/out'], check=True)
+
+    @patch('subprocess.run')
+    def test_decompile_payload(self, mock_run):
+        decompile.decompile_payload('/path/to/payload.bin', '/path/to/out', 'payload-dumper-go')
+        mock_run.assert_called_with(['payload-dumper-go', '-o', '/path/to/out', '/path/to/payload.bin'], check=True)
 
     @patch('config.ADB_PATH', 'dummy_adb')
     @patch('modules.hal.AdbWrapper')
@@ -71,7 +86,7 @@ class TestModules(unittest.TestCase):
             if path.endswith('.sh') or path.endswith('.bat'):
                 return False
             return True
-        mock__os_exists.side_effect = side_effect
+        mock_os_exists.side_effect = side_effect
 
         repair.flash_stock_rom(device_info, rom_path)
 

@@ -43,18 +43,10 @@ As the Senior Android Systems Architect & AI Integration Lead, this TODO list ou
     - Set up GitHub Actions (`.github/workflows/tests.yml`).
     - Added Issue Templates.
 
-## Remaining Tasks
+- [x] **Final Polish:**
+    - Added consistent safety prompts using `rich.prompt.Confirm` in `tui.py`.
+    - Implemented `rich` spinners and progress indicators for long-running tasks.
+    - Verified multi-device selection support.
+    - Created PyInstaller build script (`build_exe.sh`) for standalone executables.
 
-### UI Improvements
-
-- [ ] **Safety Prompts:**
-    - Add confirmation prompts for destructive actions (Root, Flash, Repair) in `tui.py`. (Partially handled in `repair.py`, need to ensure consistent usage).
-- [ ] **Visual Feedback:**
-    - Implement `rich` progress bars and spinners for long-running operations (downloads, compilations).
-
-### Advanced / Future Features
-
-- [ ] **Multi-Device Support:**
-    - Allow selecting from a list of connected devices.
-- [ ] **Packaging:**
-    - Create standalone executables using PyInstaller.
+## Remaining Tasks (Completed)

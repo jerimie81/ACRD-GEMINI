@@ -8,9 +8,18 @@ import config
 from .exceptions import DatabaseError
 from db.models import Base, DeviceProfile, Method, ToolConfig, Log, UrlPlaceholder, AiTailoredOption, DbMetadata
 import datetime
+import logging
+
+logger = logging.getLogger("ACRD")
 
 engine = create_engine(f'sqlite:///{config.DB_PATH}')
 Session = sessionmaker(bind=engine)
+
+def reset_engine():
+    """Reset the database engine (useful for testing)."""
+    global engine, Session
+    engine = create_engine(f'sqlite:///{config.DB_PATH}')
+    Session = sessionmaker(bind=engine)
 
 @contextmanager
 def get_session():
@@ -109,18 +118,32 @@ def insert_device_profile(info: dict):
         device = session.query(DeviceProfile).filter_by(model=info.get('model')).first()
         if device:
             device.brand = info.get('brand')
+            device.serial = info.get('serial')
             device.os_version = info.get('os_version')
             device.firmware = info.get('firmware')
             device.security_patch = info.get('security_patch')
             device.boot_mode = info.get('boot_mode')
             device.last_quarried = datetime.datetime.utcnow()
         else:
-            session.add(DeviceProfile(**info))
+            # Filter info to only include keys that are in the model
+            valid_keys = [c.name for c in DeviceProfile.__table__.columns]
+            filtered_info = {k: v for k, v in info.items() if k in valid_keys}
+            session.add(DeviceProfile(**filtered_info))
 
 def query_methods(os_version):
     """Query root methods by compatibility."""
     with get_session() as session:
-        return session.query(Method).filter(Method.compatibility.like(f'%{os_version}%')).all()
+        methods = session.query(Method).filter(Method.compatibility.like(f'%{os_version}%')).all()
+        return [
+            {
+                'name': m.name,
+                'description': m.description,
+                'pros': m.pros,
+                'cons': m.cons,
+                'compatibility': m.compatibility,
+                'requirements': m.requirements
+            } for m in methods
+        ]
 
 def store_urls(model, structure):
     """Store URLs/placeholders for a model."""
@@ -132,7 +155,17 @@ def store_urls(model, structure):
 def get_url(model, component, type):
     """Gets a URL for a specific component and type."""
     with get_session() as session:
-        return session.query(UrlPlaceholder).filter_by(model=model, component=component, type=type).first()
+        url_obj = session.query(UrlPlaceholder).filter_by(model=model, component=component, type=type).first()
+        if url_obj:
+            # Convert to dict to avoid DetachedInstanceError
+            return {
+                'url': url_obj.url,
+                'checksum': url_obj.checksum,
+                'verified': url_obj.verified,
+                'component': url_obj.component,
+                'type': url_obj.type
+            }
+        return None
 
 def set_url_verified(model, component, type, verified=True):
     """Updates the verified status of a URL."""
@@ -148,6 +181,7 @@ def store_tailored_options(model, option, tailored_data):
 
 def log_operation(model, operation, log_data, status):
     """Log an operation."""
+    logger.info(f"Operation: {operation} | Model: {model} | Status: {status} | Data: {log_data}")
     with get_session() as session:
         session.add(Log(model=model, operation=operation, log_data=log_data, status=status))
 

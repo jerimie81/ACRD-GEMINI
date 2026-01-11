@@ -3,6 +3,7 @@
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.prompt import Confirm
 from modules import download, root, compile, decompile, diagnostic, debug, repair, ai_integration, db_manager
 from modules.exceptions import AIError
 import json
@@ -62,7 +63,7 @@ def launch_tui(device_info):
             type = console.input("Enter type (e.g., custom, stock): ")
             download.download_component(device_info['model'], component, type)
         elif choice == '2':
-            if console.input("[bold red]WARNING: Rooting can brick your device and voids warranty. Continue? (y/N): [/bold red]").lower() == 'y':
+            if Confirm.ask("[bold red]WARNING: Rooting can brick your device and voids warranty. Continue?[/bold red]", default=False):
                 root.root_device(device_info)
         elif choice == '3':
             compile_menu = Table(show_header=False, show_lines=True)
@@ -122,7 +123,7 @@ def launch_tui(device_info):
         elif choice == '6':
             debug.start_logcat(device_info)
         elif choice == '7':
-            if console.input("[bold red]WARNING: Repair/Flashing can result in data loss. Continue? (y/N): [/bold red]").lower() == 'y':
+            if Confirm.ask("[bold red]WARNING: Repair/Flashing can result in data loss. Continue?[/bold red]", default=False):
                 repair.repair_device(device_info)
         elif choice == 'q':
             break

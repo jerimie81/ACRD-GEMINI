@@ -1,12 +1,14 @@
 # modules/root.py
 
 import config
-from modules import db_manager
-from modules import ai_integration
+from modules import db_manager, ai_integration
 from modules.hal import AdbWrapper, FastbootWrapper
 from rich.console import Console
+import logging
 import json
 import os
+
+logger = logging.getLogger("ACRD")
 
 def get_root_warnings(brand, model):
     """Gets rooting warnings for a specific device."""
@@ -23,6 +25,7 @@ def get_root_methods(os_version):
 def root_device(device_info):
     """Roots a device."""
     console = Console()
+    logger.info(f"Starting rooting process for {device_info.get('model')}")
     warnings = get_root_warnings(device_info.get('brand'), device_info.get('model'))
     console.print(f"[bold red]WARNINGS:[/bold red]\n{warnings}")
     
@@ -37,13 +40,13 @@ def root_device(device_info):
 
     console.print("\n[bold]Available Root Methods:[/bold]")
     for i, method in enumerate(methods):
-        console.print(f"{i+1}. [bold cyan]{method.name}[/bold cyan] - {method.description}")
-        if method.pros:
-            console.print(f"   [green]Pros:[/green] {method.pros}")
-        if method.cons:
-            console.print(f"   [red]Cons:[/red] {method.cons}")
-        if method.compatibility:
-            console.print(f"   [blue]Compatibility:[/blue] {method.compatibility}")
+        console.print(f"{i+1}. [bold cyan]{method['name']}[/bold cyan] - {method['description']}")
+        if method.get('pros'):
+            console.print(f"   [green]Pros:[/green] {method['pros']}")
+        if method.get('cons'):
+            console.print(f"   [red]Cons:[/red] {method['cons']}")
+        if method.get('compatibility'):
+            console.print(f"   [blue]Compatibility:[/blue] {method['compatibility']}")
 
     console.print(f"{len(methods)+1}. [bold yellow]Show Root Evasion Techniques[/bold yellow]")
 
@@ -80,12 +83,12 @@ def show_evasion_techniques():
 def execute_root_method(method, device_info):
     """Executes a tailored root method."""
     console = Console()
-    console.print(f"\n[bold]Executing {method.name}...[/bold]")
+    console.print(f"\n[bold]Executing {method['name']}...[/bold]")
     
     reqs = {}
-    if method.requirements:
+    if method.get('requirements'):
         try:
-            reqs = json.loads(method.requirements)
+            reqs = json.loads(method['requirements'])
         except json.JSONDecodeError:
             pass
 
@@ -110,21 +113,21 @@ def execute_root_method(method, device_info):
     # General Implementation Steps
     console.print("\n[bold]Implementation Steps:[/bold]")
     console.print("1. Obtain stock ROM/boot image from official sources (e.g., SamFW for Samsung).")
-    console.print(f"2. Download {method.name} app/APK from official GitHub releases.")
+    console.print(f"2. Download {method['name']} app/APK from official GitHub releases.")
     
-    if method.name in ['Magisk', 'Kitsune Mask']:
-        console.print(f"3. Patch boot.img (or init_boot.img) using the {method.name} app.")
+    if method['name'] in ['Magisk', 'Kitsune Mask']:
+        console.print(f"3. Patch boot.img (or init_boot.img) using the {method['name']} app.")
         console.print("4. Flash patched image: `fastboot flash boot patched_boot.img`")
-    elif method.name in ['KernelSU', 'APatch']:
-        console.print(f"3. Extract and patch kernel image (or boot.img for GKI) using the {method.name} app.")
+    elif method['name'] in ['KernelSU', 'APatch']:
+        console.print(f"3. Extract and patch kernel image (or boot.img for GKI) using the {method['name']} app.")
         console.print("4. Flash patched image via fastboot.")
-    elif 'Samsung' in method.name:
-        console.print(f"3. Extract AP file from firmware and patch via Magisk/{method.name} app.")
+    elif 'Samsung' in method['name']:
+        console.print(f"3. Extract AP file from firmware and patch via Magisk/{method['name']} app.")
         console.print("4. Flash patched AP tar file via Odin in AP slot.")
     
     console.print("5. Reboot and grant root permissions in the app.")
     
-    if method.name in ['Magisk', 'Kitsune Mask']:
+    if method['name'] in ['Magisk', 'Kitsune Mask']:
         # Legacy logic for boot image pulling if possible
         if device_info.get('boot_mode') == 'adb' and device_info.get('serial'):
             console.print("\n[i]Attempting automated boot image pull (Requires existing root or specific exploit)...[/i]")
@@ -134,5 +137,5 @@ def execute_root_method(method, device_info):
             console.print("[yellow]Automated pull is often restricted on modern Android without prior root.[/yellow]")
             console.print("[yellow]It is safer to manually extract boot.img from your device's stock firmware.[/yellow]")
 
-    db_manager.log_operation(device_info.get('model'), "Root", f"{method.name} instructions provided", "INFO")
-    console.print(f"\n{method.name} root instructions complete.")
+    db_manager.log_operation(device_info.get('model'), "Root", f"{method['name']} instructions provided", "INFO")
+    console.print(f"\n{method['name']} root instructions complete.")

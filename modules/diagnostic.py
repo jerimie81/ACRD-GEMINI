@@ -1,8 +1,11 @@
 # modules/diagnostic.py
 
+import logging
 import config
 from rich.console import Console
 from modules.hal import AdbWrapper
+
+logger = logging.getLogger("ACRD")
 
 def run_diagnostics(device_info):
     """

@@ -3,11 +3,15 @@
 import os
 import requests
 import hashlib
+import logging
 from modules import db_manager
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
+from rich.progress import Progress, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn
+
+logger = logging.getLogger("ACRD")
 
 def download_file(url, destination):
     """Downloads a file from a URL to a destination with a progress bar."""
+    logger.info(f"Downloading file from {url} to {destination}")
     try:
         # Ensure the destination directory exists
         os.makedirs(os.path.dirname(destination), exist_ok=True)
@@ -29,8 +33,10 @@ def download_file(url, destination):
                     for chunk in r.iter_content(chunk_size=8192):
                         f.write(chunk)
                         progress.update(task, advance=len(chunk))
+        logger.info(f"Successfully downloaded {destination}")
         return True
     except requests.exceptions.RequestException as e:
+        logger.error(f"Error downloading file {url}: {e}")
         print(f"Error downloading file: {e}")
         return False
 
@@ -44,9 +50,11 @@ def verify_checksum(file_path, checksum):
 
 def download_component(model, component, type):
     """Downloads a specific component for a given model."""
+    logger.info(f"Initiating download for {model}: {component} ({type})")
     # Get the URL from the database
     url_info = db_manager.get_url(model, component, type)
     if not url_info:
+        logger.warning(f"No URL found for {component} {type} for model {model}")
         print(f"No URL found for {component} {type} for model {model}")
         return
 
@@ -65,7 +73,7 @@ def download_component(model, component, type):
     print(f"Starting download of {component} ({type})...")
     if download_file(url, destination):
         if checksum and not verify_checksum(destination, checksum):
-            print(f"[red]Checksum verification failed for {destination}![/red]")
+            print("Checksum verification failed!")
             # Log the failure
             db_manager.log_operation(model, f"Download {component} {type}", f"Checksum mismatch: {checksum}", "FAILED")
         else:

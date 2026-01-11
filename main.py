@@ -2,10 +2,12 @@
 
 import argparse
 import sys
+
+from rich.console import Console
+
+import config
 from modules import db_manager, device_quarry, dir_tree_generator, ai_integration
 from ui import tui
-import config
-from rich.console import Console
 
 console = Console()
 

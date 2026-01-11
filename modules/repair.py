@@ -1,12 +1,17 @@
 # modules/repair.py
 
-import config
+import os
+import logging
+
 from rich.console import Console
 from rich.prompt import Confirm
-from modules.hal import AdbWrapper, FastbootWrapper, HeimdallWrapper
+
+import config
+from modules import ai_integration, logger as acrd_logger 
 from modules.exceptions import AIError, ToolError
-from modules import ai_integration
-import os
+from modules.hal import AdbWrapper, FastbootWrapper, HeimdallWrapper
+
+logger = logging.getLogger("ACRD")
 
 console = Console()
 
