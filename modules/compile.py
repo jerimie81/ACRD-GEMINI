@@ -26,7 +26,8 @@ def compile_rom(source_path, target_device):
         try:
             # Simplified example: source build/envsetup.sh && lunch ... && make
             # subprocess.run(['bash', '-c', f'source build/envsetup.sh && lunch {target_device} && make -j$(nproc)'], cwd=source_path, check=True)
-            console.print("[yellow]ROM compilation initiated (placeholder logic executed).[/yellow]")
+            subprocess.run(['make', '-C', source_path, f'target={target_device}'], check=True)
+            console.print("[green]ROM compilation complete.[/green]")
         except Exception as e:
             console.print(f"[red]ROM compilation failed: {e}[/red]")
 
@@ -38,7 +39,7 @@ def sign_avb(image_path, key_path, avbtool_path):
     with console.status(f"[bold green]Signing {image_path} with AVB key {key_path}...", spinner="dots"):
         try:
             # avbtool add_hash_footer --image image.img --partition_name boot --partition_size ... --key key.pem --algorithm SHA256_RSA2048
-            subprocess.run(['python3', avbtool_path, 'add_hash_footer', '--image', image_path, '--key', key_path], check=True, capture_output=True)
+            subprocess.run(['python3', avbtool_path, 'add_hash_footer', '--image', image_path, '--key', key_path], check=True)
             console.print("AVB signing complete.")
         except Exception as e:
             console.print(f"[red]AVB signing failed: {e}[/red]")
