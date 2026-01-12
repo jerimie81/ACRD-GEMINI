@@ -7,9 +7,9 @@ from rich.console import Console
 from rich.prompt import Confirm
 
 import config
-from modules import ai_integration, logger as acrd_logger 
+from modules import ai_integration, logger as acrd_logger
 from modules.exceptions import AIError, ToolError
-from modules.hal import AdbWrapper, FastbootWrapper, HeimdallWrapper
+import modules.hal as hal
 
 logger = logging.getLogger("ACRD")
 
@@ -53,7 +53,7 @@ def check_battery(device_info):
     """Checks battery level if possible."""
     if device_info.get('boot_mode') == 'adb' and device_info.get('serial'):
         try:
-            adb = AdbWrapper(config.ADB_PATH, serial=device_info['serial'])
+            adb = hal.AdbWrapper(config.ADB_PATH, serial=device_info['serial'])
             # Dumpsys is more reliable for battery info
             battery_info = adb.shell(["dumpsys", "battery"])
             if battery_info:
@@ -93,7 +93,7 @@ def flash_stock_rom(device_info, rom_path):
     
     try:
         if device_info.get('boot_mode') in ['fastboot', 'fastbootd'] and device_info.get('serial'):
-            fastboot = FastbootWrapper(config.FASTBOOT_PATH, serial=device_info['serial'])
+            fastboot = hal.FastbootWrapper(config.FASTBOOT_PATH, serial=device_info['serial'])
             # Check for flash-all script first
             flash_all_sh = os.path.join(rom_path, "flash-all.sh")
             flash_all_bat = os.path.join(rom_path, "flash-all.bat")
@@ -121,7 +121,7 @@ def flash_stock_rom(device_info, rom_path):
                         console.print(f"[yellow]Skipping {partition} (not found)[/yellow]")
                         
         elif device_info.get('boot_mode') == 'download': # Samsung
-            heimdall = HeimdallWrapper(config.HEIMDALL_PATH)
+            heimdall = hal.HeimdallWrapper(config.HEIMDALL_PATH)
             console.print("Heimdall flashing is not yet implemented.")
             # Heimdall logic to be implemented here
             pass

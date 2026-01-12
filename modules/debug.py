@@ -1,20 +1,20 @@
 # modules/debug.py
 
 import config
-from rich.console import Console
-from modules.hal import AdbWrapper
+import rich.console
+import modules.hal as hal
 
 def start_logcat(device_info):
     """
     Starts a logcat stream with filtering options.
     """
-    console = Console()
+    console = rich.console.Console()
     
     if not device_info or 'serial' not in device_info:
         console.print("[red]Error: Device information with serial is required.[/red]")
         return
         
-    adb_wrapper = AdbWrapper(config.ADB_PATH, serial=device_info['serial'])
+    adb_wrapper = hal.AdbWrapper(config.ADB_PATH, serial=device_info['serial'])
 
     console.print("[bold]Logcat Options:[/bold]")
     console.print("1. All logs")
@@ -35,7 +35,7 @@ def start_logcat(device_info):
         # grep is handled by piping, which is tricky with Popen directly on adb logcat
         # adb logcat doesn't have a built-in grep, but we can filter in python
         search_term = console.input("Enter search string: ")
-        console.print(f"Starting logcat stream filtered by '{{search_term}}'... (Press Ctrl+C to stop)")
+        console.print(f"Starting logcat stream filtered by '{search_term}'... (Press Ctrl+C to stop)")
         
         logcat_process = adb_wrapper.logcat(stream=True)
         if logcat_process:

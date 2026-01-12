@@ -3,7 +3,7 @@
 import logging
 import config
 from rich.console import Console
-from modules.hal import AdbWrapper
+import modules.hal as hal
 
 logger = logging.getLogger("ACRD")
 
@@ -18,7 +18,7 @@ def run_diagnostics(device_info):
         console.print("[yellow]Diagnostics require an ADB device with a serial. Skipping.[/yellow]")
         return
 
-    adb = AdbWrapper(config.ADB_PATH, serial=device_info['serial'])
+    adb = hal.AdbWrapper(config.ADB_PATH, serial=device_info['serial'])
 
     # 1. Check for root
     root_status = adb.shell(["su", "-c", "echo 'rooted'"])
